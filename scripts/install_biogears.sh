@@ -113,12 +113,61 @@ say "Installing into $PREFIX"
 cmake --install "$BUILD"
 
 # --- make the install self-contained -----------------------------------------
-GEN="$BUILD/projects/biogears/generated/Release/biogears/schema"
-[[ -d "$GEN" ]] || die "generated schema headers not found at $GEN"
-say "Copying XSD-generated headers into $PREFIX/include/biogears/schema"
-mkdir -p "$PREFIX/include/biogears"
-rm -rf "$PREFIX/include/biogears/schema"
-cp -R "$GEN" "$PREFIX/include/biogears/schema"
+# The XSD-generated headers (biogears/schema/...) are included by BioGears'
+# public headers. On macOS BioGears generates them under generated/ and installs
+# them; on Linux they go under generated/<CONFIG>/ and its install rule misses
+# them. Copy them only if the install doesn't already have them.
+if [[ -f "$PREFIX/include/biogears/schema/cdm/Circuit.hxx" ]]; then
+  say "Generated schema headers already installed"
+else
+  GEN=""
+  for cand in "$BUILD/projects/biogears/generated/Release/biogears/schema" \
+              "$BUILD/projects/biogears/generated/biogears/schema"; do
+    [[ -f "$cand/cdm/Circuit.hxx" ]] && GEN="$cand" && break
+  done
+  [[ -n "$GEN" ]] || die "generated schema headers not found under $BUILD/projects/biogears/generated"
+  say "Copying XSD-generated headers from $GEN"
+  mkdir -p "$PREFIX/include/biogears"
+  rm -rf "$PREFIX/include/biogears/schema"
+  cp -R "$GEN" "$PREFIX/include/biogears/schema"
+fi
+
+# macOS: BioGears' INSTALL_RPATH generator expression is malformed, so the
+# install step's install_name_tool call fails ("more than one input file") and
+# the installed libraries and tools keep their build-tree load paths. Repair
+# the installed copies: every BioGears dependency becomes @rpath/<name>, every
+# rpath is replaced by one relative to the binary, then re-sign (arm64 refuses
+# to load binaries whose signature was invalidated).
+if [[ "$(uname)" == "Darwin" ]]; then
+  say "Repairing load paths of installed BioGears binaries"
+  fix_macho() { # file, rpath-to-add
+    local f="$1" want="$2" dep r
+    while read -r dep; do
+      case "$dep" in
+        "$BUILD"/*|*/libbiogears*) [[ "$dep" == @rpath/* ]] || install_name_tool -change "$dep" "@rpath/$(basename "$dep")" "$f" ;;
+      esac
+    done < <(otool -L "$f" | tail -n +2 | awk '{print $1}')
+    if [[ "$f" == *.dylib ]]; then
+      install_name_tool -id "@rpath/$(basename "$f")" "$f"
+    fi
+    while read -r r; do
+      [[ -n "$r" ]] && install_name_tool -delete_rpath "$r" "$f"
+    done < <(otool -l "$f" | awk '/cmd LC_RPATH/{getline; getline; sub(/^ *path /, ""); sub(/ \(offset [0-9]+\)$/, ""); print}')
+    install_name_tool -add_rpath "$want" "$f"
+    codesign --force --sign - "$f" >/dev/null 2>&1
+  }
+  for f in "$PREFIX"/lib/libbiogears*.dylib; do
+    [[ -f "$f" && ! -L "$f" ]] && fix_macho "$f" "@loader_path"
+  done
+  for f in "$PREFIX/bg-cli" "$PREFIX/bg-scenario" "$PREFIX/bin/bg-cli" "$PREFIX/bin/bg-scenario"; do
+    [[ -f "$f" && ! -L "$f" ]] || continue
+    if [[ "$(dirname "$f")" == "$PREFIX" ]]; then fix_macho "$f" "@loader_path/lib"; else fix_macho "$f" "@loader_path/../lib"; fi
+  done
+  for f in "$PREFIX"/lib/libbiogears*.dylib "$PREFIX/bg-scenario" "$PREFIX/bin/bg-scenario"; do
+    [[ -f "$f" && ! -L "$f" ]] || continue
+    if otool -l "$f" | grep -q "$BUILD"; then die "$f still refers to the build tree"; fi
+  done
+fi
 
 RUNTIME="$PREFIX/share/biogears/runtime"
 say "Assembling runtime directory $RUNTIME"
