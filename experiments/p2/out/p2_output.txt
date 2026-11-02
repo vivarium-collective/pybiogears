@@ -1,0 +1,13 @@
+BioGears 8.2.0+0-c5227b6
+2026-11-02 12:09 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 12:09 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 12:09 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+connected: [True, True, True] ['HeartRate(1/min)', 'MeanArterialPressure(mmHg)', 'BloodVolume(mL)']
+dt = 0.02 s; t0 values: [   0.           72.           95.89432601 5532.36226926]
+t = 10.000 s  HR = 72.301524/min  MAP = 95.935661 mmHg  BV = 5532.434516 mL
+load 0.25 s; advance 10 s sim in 1.66 s wall (RTF 6.0x)
+errors logged: 0 []
+oracle header: ['Time(s)', 'HeartRate(1/min)', 'MeanArterialPressure(mmHg)', 'BloodVolume(mL)']
+oracle row t = 10.0: [  72.30152366   95.93566093 5532.43451611    0.        ]
+binding - oracle: [2.58637556e-12 3.68629571e-11 4.63842298e-11]
+max |rel diff|: 3.842466583621803e-13

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pybiogears"
+version = "0.0.1"
+description = "Python binding for the BioGears physiology engine (8.2.0)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.scikit-build]
+wheel.packages = ["src/pybiogears"]
+cmake.build-type = "Release"
+# Point at an installed BioGears: CMAKE_PREFIX_PATH=/path/to/install pip install .
+# (or -C cmake.define.CMAKE_PREFIX_PATH=...)
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

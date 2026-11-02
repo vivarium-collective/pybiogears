@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- P2 oracle: the same run as p2_minimal_binding.py, executed by BioGears' own bg-scenario. -->
+<Scenario xmlns="uri:/mil/tatrc/physiology/datamodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" contentVersion="BioGears_8.2.0">
+  <Name>pybiogears_p2_oracle</Name>
+  <Description>Load StandardMale@0s, advance 10 s, record HR, MAP, blood volume</Description>
+  <EngineStateFile>./states/StandardMale@0s.xml</EngineStateFile>
+  <DataRequests SamplesPerSecond="50">
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="HeartRate" Unit="1/min" Precision="10"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="MeanArterialPressure" Unit="mmHg" Precision="10"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="BloodVolume" Unit="mL" Precision="10"/>
+  </DataRequests>
+  <Actions>
+    <Action xsi:type="AdvanceTimeData"><Time value="10" unit="s"/></Action>
+  </Actions>
+</Scenario>
