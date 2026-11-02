@@ -17,9 +17,10 @@
 #   Linux (Debian/Ubuntu): sudo apt-get install cmake ninja-build g++ git xsdcxx \
 #       libxerces-c-dev libeigen3-dev libboost-dev libboost-system-dev \
 #       libboost-filesystem-dev libboost-date-time-dev libboost-program-options-dev
-#   macOS (Homebrew):      brew install cmake ninja git xerces-c xsd eigen boost
-#   Boost is optional; without it the bg-cli/bg-scenario tools are not built
-#   (they are only needed as test oracles).
+#   macOS (Homebrew):      brew install cmake ninja git xerces-c xsd eigen
+#   On Linux, Boost gives bg-cli/bg-scenario their Boost-based option parser and
+#   subprocess support; on macOS it is disabled (see below). Either way the tools
+#   are built; they are only needed as test oracles.
 set -euo pipefail
 
 BIOGEARS_TAG=8.2.0
@@ -77,6 +78,11 @@ if [[ "$(uname)" == "Darwin" ]]; then
   # zutil.h skips that define if fdopen is already a macro, so make it one
   # that expands to itself. C only; BioGears' sources are not touched.
   CMAKE_EXTRA+=("-DCMAKE_C_FLAGS=-Dfdopen=fdopen")
+  # BioGears' CLI uses Boost.Process v1 headers (boost/process/exception.hpp),
+  # which current Homebrew Boost (1.92) no longer ships. Boost is optional for
+  # BioGears; without it bg-cli/bg-scenario build with their own argument parser
+  # (keyword syntax: bg-scenario SCENARIO file.xml).
+  CMAKE_EXTRA+=("-DCMAKE_DISABLE_FIND_PACKAGE_Boost=ON")
 fi
 
 # --- source -------------------------------------------------------------------
@@ -126,13 +132,19 @@ cp "$SRC/share/etc/UCEDefs.conf" "$RUNTIME/"
 
 # BioGears' INSTALL_RPATH generator expression is malformed in 8.2.0, so the
 # installed tools can't find their libraries. Wrap the oracle tools.
+# On macOS BioGears installs the tools to the prefix root instead of bin/.
+mkdir -p "$PREFIX/bin"
 for tool in bg-scenario bg-cli; do
-  if [[ -x "$PREFIX/bin/$tool" ]]; then
+  exe=""
+  for cand in "$PREFIX/bin/$tool" "$PREFIX/$tool"; do
+    [[ -x "$cand" && -f "$cand" ]] && exe="$cand" && break
+  done
+  if [[ -n "$exe" ]]; then
     cat > "$PREFIX/bin/$tool.sh" <<WRAP
 #!/usr/bin/env bash
 export LD_LIBRARY_PATH="$PREFIX/lib\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
 export DYLD_LIBRARY_PATH="$PREFIX/lib\${DYLD_LIBRARY_PATH:+:\$DYLD_LIBRARY_PATH}"
-exec "$PREFIX/bin/$tool" "\$@"
+exec "$exe" "\$@"
 WRAP
     chmod +x "$PREFIX/bin/$tool.sh"
   fi
