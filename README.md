@@ -21,27 +21,21 @@ How each piece maps to BioGears:
 
 ## Build
 
-1. Build and install BioGears 8.2.0 (C++20; needs Xerces-C, CodeSynthesis XSD, Eigen 3; Boost optional, for `bg-cli`):
+One command builds and installs stock BioGears 8.2.0, then pybiogears, and runs the tests:
 
-   ```sh
-   git clone --branch 8.2.0 https://github.com/BioGearsEngine/core.git biogears-8.2.0
-   cmake -S biogears-8.2.0 -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-         -DCMAKE_INSTALL_PREFIX=$HOME/biogears-8.2.0-install \
-         -DBiogears_BUILD_HOWTOS=OFF -DBiogears_BUILD_TEST=OFF
-   cmake --build build && cmake --install build
-   ```
+```sh
+scripts/install_biogears.sh --with-pybiogears        # defaults: ~/biogears-8.2.0-install, ~/biogears-8.2.0-build
+export BIOGEARS_RUNTIME=~/biogears-8.2.0-install/share/biogears/runtime
+```
 
-2. Build this package against it:
+Dependencies are listed at the top of the script (apt on Linux, Homebrew on macOS). BioGears itself is not modified. After installing, the script works around three 8.2.0 install gaps (see `experiments/p1/README.md`):
+- It copies the XSD-generated `biogears/schema` headers, which the install omits, into the install.
+- It assembles a runtime directory (xsd, substances, patients, states) at `<prefix>/share/biogears/runtime`.
+- It writes `bg-scenario.sh` and `bg-cli.sh` wrappers, because the installed tools can't find their libraries on their own.
 
-   ```sh
-   CMAKE_PREFIX_PATH=$HOME/biogears-8.2.0-install pip install -e .
-   ```
+Re-running it is incremental. Changing `--prefix` recompiles everything, because BioGears builds the prefix into a header.
 
-3. Point it at a BioGears runtime directory (holds `xsd/`, `substances/`, `patients/`, `states/`):
-
-   ```sh
-   export BIOGEARS_RUNTIME=/path/to/biogears/runtime
-   ```
+To build pybiogears alone against an existing install: `CMAKE_PREFIX_PATH=<prefix> pip install -e .`
 
 ## Use
 
@@ -62,7 +56,7 @@ eng.process_actions(pb.actions.hemorrhage("Aorta", 150.0))
 eng.advance(60.0)
 ```
 
-Request categories: `Physiology`, `Patient`, `Environment`, `Equipment`, `Substance`, `LiquidCompartment`, `GasCompartment`, `TissueCompartment`, `ThermalCompartment`.
+Request categories: `Physiology`, `Patient`, `Environment`, `Equipment`, `Substance`, `LiquidCompartment`, `GasCompartment`, `TissueCompartment`, `ThermalCompartment`, and two circuit categories, `FluidPath` (Flow, FlowSource, PressureSource, Resistance, Compliance) and `FluidNode` (Pressure, Volume), which read elements of the active cardiovascular circuit by name (put the name in `compartment`). The circuit categories exist because some quantities, such as lymph flow, have no compartment or system request in BioGears 8.2.0.
 
 ## Probes
 

@@ -1,0 +1,3 @@
+[14:37] p5_infusion <WARNING> Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic.
+Reading Scenarios/p5_infusion.xml
+[14:37] p5_infusion <WARNING> Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic.

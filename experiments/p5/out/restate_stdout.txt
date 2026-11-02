@@ -1,0 +1,115 @@
+2026-11-02 14:55 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:55 <INFO> [0s] Configuring patient 
+2026-11-02 14:55 <INFO> [0s] No patient pain susceptibility set 0.000000 being used. 
+2026-11-02 14:55 <INFO> [0s] No patient sweat susceptibility set 0.000000 being used. 
+2026-11-02 14:55 <INFO> [0s] No patient sleep amount set 8.000000 hr being used. 
+2026-11-02 14:55 <INFO> [0s] Patient lean body mass computed and set to 60.917455 kg. 
+2026-11-02 14:55 <INFO> [0s] Patient muscle mass computed and set to 29.610510 kg. 
+2026-11-02 14:55 <INFO> [0s] Patient body density computed and set to 1.050524 g/cm^3. 
+2026-11-02 14:55 <INFO> [0s] No patient heart rate maximum set. Using a computed value of 177.200000 bpm. 
+2026-11-02 14:55 <INFO> [0s] No patient heart rate minimum set. Using a default value of 0.001bpm. 
+2026-11-02 14:55 <INFO> [0s] Patient's blood type antigen has not been set. Defaulting to  0.000000 
+2026-11-02 14:55 <INFO> [0s] No patient blood volume baseline set. Using a computed value of 5517.734438 mL. 
+2026-11-02 14:55 <INFO> [0s] No patient right lung ratio set. Using the standard value of 0.525000 . 
+2026-11-02 14:55 <INFO> [0s] No patient total lung capacity set. Using a computed value of 6.168856 L. 
+2026-11-02 14:55 <INFO> [0s] No patient functional residual capacity set. Using a computed value of 2.313321 L. 
+2026-11-02 14:55 <INFO> [0s] No patient residual volume set. Using a computed value of 1.542214 L. 
+2026-11-02 14:55 <INFO> [0s] Patient tidal volume computed and set to 0.539775 L. 
+2026-11-02 14:55 <INFO> [0s] Patient vital capacity computed and set to 4.626642 L. 
+2026-11-02 14:55 <INFO> [0s] Patient expiratory reserve volume computed and set to 0.771107 L. 
+2026-11-02 14:55 <INFO> [0s] Patient inspiratory reserve volume computed and set to 3.315760 L. 
+2026-11-02 14:55 <INFO> [0s] Patient inspiratory capacity computed and set to 3.855535 L. 
+2026-11-02 14:55 <INFO> [0s] No patient alveoli surface area set. Using a computed value of 69.987024 m^2. 
+2026-11-02 14:55 <INFO> [0s] No patient skin surface area set. Using a computed value of 1.968118 m^2. 
+2026-11-02 14:55 <INFO> [0s] No patient basal metabolic rate set. Using a computed value of << kcal/day. 
+2026-11-02 14:55 <INFO> [0s] No patient maximum work rate set. Using a computed value of 1000.800000 Watts. 
+2026-11-02 14:55 <INFO> [0s] Resetting Substances 
+2026-11-02 14:55 <INFO> [0s] Initializing Configuration 
+2026-11-02 14:55 <INFO> [0s] Merging OnDisk Configuration 
+2026-11-02 14:55 <INFO> [0s] Creating Circuits and Compartments 
+2026-11-02 14:55 <INFO> [0s] Setting Up Cardiovascular 
+2026-11-02 14:55 <INFO> [0s] Setting up Cerebral 
+2026-11-02 14:55 <INFO> [0s] Setting Up Renal 
+2026-11-02 14:55 <INFO> [0s] Setting Up Tissue 
+2026-11-02 14:55 <INFO> [0s] Setting Up Gastrointestinal 
+2026-11-02 14:55 <INFO> [0s] Setting Up External Temperature 
+2026-11-02 14:55 <INFO> [0s] Setting Up Internal Temperature 
+2026-11-02 14:55 <INFO> [0s] Setting Up Respiratory 
+2026-11-02 14:55 <INFO> [0s] Setting Up Anesthesia Machine 
+2026-11-02 14:55 <INFO> [0s] Setting Up Inhaler 
+2026-11-02 14:55 <INFO> [0s] Setting Up Nasal Cannula 
+2026-11-02 14:55 <INFO> [0s] Setting Up MechanicalVentilator 
+2026-11-02 14:55 <INFO> [0s] Initializing Substances 
+2026-11-02 14:55 <INFO> [0s] Initializing Systems 
+2026-11-02 14:55 <INFO> [0s] Tuning to patient parameters : HeartRate(bpm):72 Systolic(mmHg):114 Diastolic(mmHg):73.5 
+2026-11-02 14:55 <INFO> [0s] We are stable at 87.32 
+2026-11-02 14:55 <INFO> [0s] Tuning paths, Current values : HeartRate(bpm):72 Systolic(mmHg):116.349 Diastolic(mmHg):72.0088 Cardiac Output(mL/min):5816.64 Mean CVP(mmHg):3.96792 MAP(mmHg):95.3059 BloodVolume(mL): 5534.99 
+2026-11-02 14:55 <INFO> [0s] We are stable at 121.78 
+2026-11-02 14:55 <INFO> [0s] Tuning paths, Current values : HeartRate(bpm):72 Systolic(mmHg):113.733 Diastolic(mmHg):74.5224 Cardiac Output(mL/min):5826.18 Mean CVP(mmHg):3.97174 MAP(mmHg):95.4387 BloodVolume(mL): 5534.41 
+2026-11-02 14:55 <INFO> [0s] We are stable at 140.24 
+2026-11-02 14:55 <INFO> [0s] Successfully tuned circuit. Final values : HeartRate(bpm):72 Systolic(mmHg):114.338 Diastolic(mmHg):73.941 Cardiac Output(mL/min):5825.18 Mean CVP(mmHg):3.97172 MAP(mmHg):95.4204 BloodVolume(mL): 5534.1 
+2026-11-02 14:55 <INFO> [0s] Converging to a steady state 
+2026-11-02 14:55 <INFO> [10s] Converging System... it took 1.51s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [20s] Converging System... it took 1.44s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [26s] 26.22s - Resetting the target for TidalVolume to 0.513533, the last target value was 0.509315 
+2026-11-02 14:55 <INFO> [26s] 26.22s - Resetting the target for EndTidalCarbonDioxideFraction to 0.0437657, the last target value was 0.043886 
+2026-11-02 14:55 <INFO> [29s] 29.94s - Resetting the target for EndTidalCarbonDioxideFraction to 0.0436404, the last target value was 0.0437657 
+2026-11-02 14:55 <INFO> [30s] Converging System... it took 1.51s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [30s] 30.36s - Resetting the target for HeartRate to 70.3125, the last target value was 72 
+2026-11-02 14:55 <INFO> [30s] 30.36s - Resetting the target for CardiacOutput to 5652.56, the last target value was 5792.7 
+2026-11-02 14:55 <INFO> [31s] 31.2s - Resetting the target for HeartRate to 72, the last target value was 70.3125 
+2026-11-02 14:55 <INFO> [31s] 31.2s - Resetting the target for CardiacOutput to 5787.55, the last target value was 5652.56 
+2026-11-02 14:55 <INFO> [37s] 37.36s - Resetting the target for TidalVolume to 0.514898, the last target value was 0.513533 
+2026-11-02 14:55 <INFO> [40s] Converging System... it took 1.66s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [41s] 41.06s - Resetting the target for TidalVolume to 0.518677, the last target value was 0.514898 
+2026-11-02 14:55 <INFO> [41s] 41.06s - Resetting the target for EndTidalCarbonDioxideFraction to 0.0435107, the last target value was 0.0436404 
+2026-11-02 14:55 <INFO> [50s] Converging System... it took 1.5s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [51s] 51.5s - Resetting the target for SkinTemperatureLeftLeg to 34.0646, the last target value was 33.7272 
+2026-11-02 14:55 <INFO> [51s] 51.5s - Resetting the target for SkinTemperatureRightLeg to 34.0646, the last target value was 33.7272 
+2026-11-02 14:55 <INFO> [55s] 55.86s - Resetting the target for EndTidalCarbonDioxideFraction to 0.0433882, the last target value was 0.0435107 
+2026-11-02 14:55 <INFO> [1m0s] Converging System... it took 1.48s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [1m10s] Converging System... it took 1.54s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [1m10s] 70.28s - Resetting the target for SkinTemperatureHead to 34.0462, the last target value was 33.7091 
+2026-11-02 14:55 <INFO> [1m11s] 71.38s - Resetting the target for SkinTemperatureLeftArm to 34.0692, the last target value was 33.7318 
+2026-11-02 14:55 <INFO> [1m11s] 71.38s - Resetting the target for SkinTemperatureRightArm to 34.0692, the last target value was 33.7318 
+2026-11-02 14:55 <INFO> [1m18s] 78.1s - Resetting the target for TidalVolume to 0.515558, the last target value was 0.518677 
+2026-11-02 14:55 <INFO> [1m20s] Converging System... it took 1.59s to simulate the past 10s 
+2026-11-02 14:55 <INFO> [1m30s] Converging System... it took 1.54s to simulate the past 10s 
+2026-11-02 14:55 <WARNING> [1m33s] We have passed required and optional convergence criteria. 
+2026-11-02 14:55 <INFO> [1m33s] Convergence took 14.3s to simulate 93.1s to get engine to a steady state 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient heart rate = 72(1/min) 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient diastolic arterial pressure = 74.3234(mmHg) 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient systolic arterial pressure = 114.546(mmHg) 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient mean arterial pressure = 95.7478(mmHg) 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient respiration rate = 16.129 bpm. 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient tidal volume = 0.515441 L. 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient functional residual capacity = 2.59765 L. 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient vital capacity = 4.62664 L. 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient expiratory reserve volume = 1.05544 L. 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient inspiratory reserve volume = 3.05576 L. 
+2026-11-02 14:55 <INFO> [1m33s] Initial Stabilization Homeostasis: Patient inspiratory capacity = 3.5712 L. 
+2026-11-02 14:55 <INFO> [1m33s] Converging feedback to a steady state 
+2026-11-02 14:56 <INFO> [1m43s] Converging System... it took 1.56s to simulate the past 10s 
+2026-11-02 14:56 <INFO> [1m53s] Converging System... it took 1.5s to simulate the past 10s 
+2026-11-02 14:56 <INFO> [2m3s] Converging System... it took 1.56s to simulate the past 10s 
+2026-11-02 14:56 <WARNING> [2m13s] We have passed required and optional convergence criteria. 
+2026-11-02 14:56 <INFO> [2m13s] Convergence took 6.26s to simulate 40s to get engine to a steady state 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient heart rate = 72(1/min) 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient diastolic arterial pressure = 74.4227(mmHg) 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient systolic arterial pressure = 114.655(mmHg) 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient mean arterial pressure = 95.8544(mmHg) 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient respiration rate = 16.0428 bpm. 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient tidal volume = 0.514077 L. 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient functional residual capacity = 2.59765 L. 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient vital capacity = 4.62664 L. 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient expiratory reserve volume = 1.05544 L. 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient inspiratory reserve volume = 3.05713 L. 
+2026-11-02 14:56 <INFO> [2m13s] Secondary Stabilization Homeostasis: Patient inspiratory capacity = 3.57121 L. 
+2026-11-02 14:56 <INFO> [2m13s] Nutrient stores refilled after stabilization 
+2026-11-02 14:56 <INFO> [2m13s] Finalizing homeostasis 
+2026-11-02 14:56 <INFO> [2m43s] Engine is now Active 
+2026-11-02 14:56 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:56 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:56 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 14:59 <INFO> [18m54s] [Event] 1134.32(s),  The patient is shivering 
+2026-11-02 14:59 <INFO> [19m59s] Stomach is out of Sodium 

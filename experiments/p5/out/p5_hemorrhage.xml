@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scenario xmlns="uri:/mil/tatrc/physiology/datamodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" contentVersion="BioGears_8.2.0">
+  <Name>p5_hemorrhage</Name>
+  <Description>pybiogears probe P5 oracle: hemorrhage</Description>
+  <EngineStateFile>./states/StandardMale@0s.xml</EngineStateFile>
+  <DataRequests SamplesPerSecond="1">
+    <DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="Lymph" Name="Volume" Unit="mL" Precision="10"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="BloodVolume" Unit="mL" Precision="10"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="ExtravascularFluidVolume" Unit="mL" Precision="10"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="MeanArterialPressure" Unit="mmHg" Precision="10"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="HeartRate" Unit="1/min" Precision="10"/>
+  </DataRequests>
+  <Actions>
+    <Action xsi:type="AdvanceTimeData"><Time value="300" unit="s"/></Action>
+    <Action xsi:type="HemorrhageData" Compartment="Aorta"><InitialRate value="150.0" unit="mL/min"/></Action>
+    <Action xsi:type="AdvanceTimeData"><Time value="360" unit="s"/></Action>
+    <Action xsi:type="HemorrhageData" Compartment="Aorta"><InitialRate value="0.0" unit="mL/min"/></Action>
+    <Action xsi:type="AdvanceTimeData"><Time value="3240" unit="s"/></Action>
+  </Actions>
+</Scenario>

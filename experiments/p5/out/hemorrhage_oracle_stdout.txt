@@ -1,0 +1,3 @@
+[14:26] p5_hemorrhage <WARNING> Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic.
+Reading Scenarios/p5_hemorrhage.xml
+[14:26] p5_hemorrhage <WARNING> Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic.

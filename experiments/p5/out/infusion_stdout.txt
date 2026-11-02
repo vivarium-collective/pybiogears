@@ -1,0 +1,11 @@
+2026-11-02 14:37 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:37 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:37 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 14:37 <INFO> [5m0s] [Action] 300(s), Patient Action : Compound Infusion
+	Rate: 100(mL/min)
+	Bag Volume: 1000(mL)
+	Substance Compound: Saline 
+2026-11-02 14:38 <INFO> [6m27s] [Event] 387.98(s),  The patient is in a state of metabolic alkalosis 
+2026-11-02 14:39 <INFO> [12m54s] [Event] 774.58(s),  Patient has entered state : RespiratoryAlkalosis 
+2026-11-02 14:40 <INFO> [17m53s] [Event] 1073.22(s),  The patient is shivering 
+2026-11-02 14:40 <INFO> [19m59s] Stomach is out of Sodium 

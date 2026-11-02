@@ -1,0 +1,5 @@
+2026-11-02 14:06 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:06 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:06 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 14:09 <INFO> [18m54s] [Event] 1134.32(s),  The patient is shivering 
+2026-11-02 14:09 <INFO> [19m59s] Stomach is out of Sodium 

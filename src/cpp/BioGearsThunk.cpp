@@ -6,6 +6,7 @@
 #include <biogears/cdm/enums/SEAnesthesiaEnums.h>
 #include <biogears/cdm/enums/SEPatientEnums.h>
 #include <biogears/cdm/properties/SEScalarTime.h>
+#include <biogears/cdm/properties/SEUnitScalar.h>
 #include <biogears/cdm/scenario/SEAction.h>
 #include <biogears/cdm/scenario/SEScenario.h>
 #include <biogears/cdm/scenario/requests/SEDataRequestManager.h>
@@ -21,7 +22,11 @@
 #include <biogears/cdm/substance/SESubstanceManager.h>
 #include <biogears/cdm/utils/Logger.h>
 #include <biogears/cdm/utils/SEEventHandler.h>
+#include <biogears/cdm/circuit/fluid/SEFluidCircuitNode.h>
+#include <biogears/cdm/circuit/fluid/SEFluidCircuitPath.h>
 #include <biogears/engine/BioGearsPhysiologyEngine.h>
+#include <biogears/engine/Controller/BioGears.h>
+#include <biogears/engine/Controller/BioGearsCircuits.h>
 #include <biogears/version.h>
 
 #include <cmath>
@@ -93,6 +98,11 @@ BioGearsThunk::BioGearsThunk(const std::string& working_dir, const std::string& 
   m_engine->GetLogger()->LogToConsole(false);
   m_engine->GetLogger()->SetForward(m_log_forward.get());
   m_engine->SetEventHandler(m_event_handler.get());
+  // The thunk reads its requests itself (pull_data). With auto-tracking on,
+  // every AdvanceModelTime sample re-runs PhysiologyEngineTrack::SetupRequests,
+  // which re-connects every request (resetting its unit to the engine's native
+  // unit and leaking a SEDataRequestScalar each time) and tries to write a CSV.
+  m_engine->SetAutoTrackFlag(false);
 }
 
 BioGearsThunk::~BioGearsThunk()
@@ -189,6 +199,7 @@ void BioGearsThunk::connect_requests()
   mgr.Invalidate(); // drop previous requests (the manager owns them)
   m_se_requests.clear();
   m_connected.clear();
+  m_direct.clear();
   SESubstanceManager& subs = m_engine->GetSubstanceManager();
 
   for (const DataRequest& r : m_requests) {
@@ -244,19 +255,101 @@ void BioGearsThunk::connect_requests()
       auto& d = mgr.CreateThermalCompartmentDataRequest();
       static_cast<SECompartmentDataRequest&>(d).Set(r.compartment, r.property, r.unit);
       dr = &d;
+    } else if (r.category == "FluidPath" || r.category == "FluidNode") {
+      m_direct.push_back(circuit_reader(r));
+      m_se_requests.push_back(nullptr);
+      m_connected.push_back(static_cast<bool>(m_direct.back()));
+      continue;
     } else {
       throw std::invalid_argument("unknown data request category: " + r.category);
     }
 
     bool ok = false;
     if (dr) {
-      ok = track->TrackRequest(*dr);
-      SEDataRequestScalar* ds = track->GetScalar(dr);
-      ok = ok && ds != nullptr && ds->HasScalar();
+      try {
+        ok = track->TrackRequest(*dr);
+        SEDataRequestScalar* ds = track->GetScalar(dr);
+        ok = ok && ds != nullptr && ds->HasScalar();
+      } catch (const std::exception& e) { // e.g. "mmHg is not a valid Volume unit"
+        m_log_forward->Error((std::string("pybiogears: request ") + r.property + ": " + e.what()).c_str());
+        ok = false;
+      }
     }
     m_se_requests.push_back(dr);
     m_connected.push_back(ok);
+    m_direct.emplace_back();
   }
+}
+
+// Returns an empty function if the element, property or unit is unknown.
+std::function<double()> BioGearsThunk::circuit_reader(const DataRequest& r)
+{
+  auto* bg = dynamic_cast<BioGears*>(m_engine.get());
+  if (bg == nullptr)
+    return {};
+  BioGearsCircuits& circuits = bg->GetCircuits();
+  const double nan = std::numeric_limits<double>::quiet_NaN();
+
+  // Bind a scalar getter and a default unit, then validate the unit once.
+  std::function<const SEScalar*()> get;
+  std::string unit = r.unit;
+  if (r.category == "FluidPath") {
+    SEFluidCircuitPath* p = circuits.GetFluidPath(r.compartment);
+    if (p == nullptr)
+      return {};
+    if (r.property == "Flow") {
+      get = [p]() -> const SEScalar* { return p->HasFlow() ? &p->GetFlow() : nullptr; };
+      if (unit.empty()) unit = "mL/s";
+    } else if (r.property == "FlowSource") {
+      get = [p]() -> const SEScalar* { return p->HasFlowSource() ? &p->GetFlowSource() : nullptr; };
+      if (unit.empty()) unit = "mL/s";
+    } else if (r.property == "PressureSource") {
+      get = [p]() -> const SEScalar* { return p->HasPressureSource() ? &p->GetPressureSource() : nullptr; };
+      if (unit.empty()) unit = "mmHg";
+    } else if (r.property == "Resistance") {
+      get = [p]() -> const SEScalar* { return p->HasResistance() ? &p->GetResistance() : nullptr; };
+      if (unit.empty()) unit = "mmHg s/mL";
+    } else if (r.property == "Compliance") {
+      get = [p]() -> const SEScalar* { return p->HasCompliance() ? &p->GetCompliance() : nullptr; };
+      if (unit.empty()) unit = "mL/mmHg";
+    } else {
+      return {};
+    }
+  } else {
+    SEFluidCircuitNode* n = circuits.GetFluidNode(r.compartment);
+    if (n == nullptr)
+      return {};
+    if (r.property == "Pressure") {
+      get = [n]() -> const SEScalar* { return n->HasPressure() ? &n->GetPressure() : nullptr; };
+      if (unit.empty()) unit = "mmHg";
+    } else if (r.property == "Volume") {
+      get = [n]() -> const SEScalar* { return n->HasVolume() ? &n->GetVolume() : nullptr; };
+      if (unit.empty()) unit = "mL";
+    } else {
+      return {};
+    }
+  }
+  // Check the unit is compatible now, so a bad unit is reported as unconnected.
+  const SEScalar* s0 = get();
+  if (s0 != nullptr && s0->IsValid()) {
+    auto* q = dynamic_cast<const SEUnitScalar*>(s0);
+    try {
+      if (q == nullptr || q->GetCompoundUnit(unit) == nullptr)
+        return {};
+    } catch (const std::exception&) {
+      return {};
+    }
+  }
+  return [get, unit, nan]() {
+    const SEScalar* s = get();
+    if (s == nullptr || !s->IsValid())
+      return nan;
+    try {
+      return dynamic_cast<const SEUnitScalar*>(s)->GetValue(unit);
+    } catch (const std::exception&) { // incompatible unit (not checkable while the scalar was unset)
+      return nan;
+    }
+  };
 }
 
 std::vector<double> BioGearsThunk::pull_data()
@@ -267,6 +360,10 @@ std::vector<double> BioGearsThunk::pull_data()
   out.push_back(m_ready ? m_engine->GetSimulationTime(TimeUnit::s) : nan);
   PhysiologyEngineTrack* track = m_engine->GetEngineTrack();
   for (size_t i = 0; i < m_se_requests.size(); ++i) {
+    if (m_ready && m_connected[i] && m_direct[i]) {
+      out.push_back(m_direct[i]());
+      continue;
+    }
     SEDataRequest* dr = m_se_requests[i];
     if (!m_ready || !m_connected[i] || dr == nullptr) {
       out.push_back(nan);
@@ -281,8 +378,25 @@ std::vector<double> BioGearsThunk::pull_data()
     ds->UpdateScalar();
     if (ds->IsValid()) {
       if (ds->HasUnit()) {
-        if (dr->GetUnit() == nullptr)
-          dr->SetUnit(*ds->GetUnit());
+        if (dr->GetUnit() == nullptr) {
+          // BioGears applies the requested unit only if the scalar already had
+          // a value when the request was connected; otherwise it falls back to
+          // the scalar's own unit. Apply the requested unit here instead.
+          if (dr->HasRequestedUnit()) {
+            const CCompoundUnit* u = nullptr;
+            try {
+              u = ds->GetCompoundUnit(dr->GetRequestedUnit());
+            } catch (const std::exception&) {
+            }
+            if (u == nullptr) { // incompatible unit
+              out.push_back(nan);
+              continue;
+            }
+            dr->SetUnit(*u);
+          } else {
+            dr->SetUnit(*ds->GetUnit());
+          }
+        }
         out.push_back(ds->GetValue(dr->GetUnit()->GetString()));
       } else {
         out.push_back(ds->GetValue());
@@ -300,8 +414,14 @@ std::vector<std::string> BioGearsThunk::request_headings() const
 {
   std::vector<std::string> out;
   PhysiologyEngineTrack* track = m_engine->GetEngineTrack();
-  for (SEDataRequest* dr : m_se_requests) {
-    SEDataRequestScalar* ds = dr ? track->GetScalar(dr) : nullptr;
+  for (size_t i = 0; i < m_se_requests.size(); ++i) {
+    SEDataRequest* dr = m_se_requests[i];
+    if (dr == nullptr) { // circuit request
+      const DataRequest& r = m_requests[i];
+      out.push_back(r.compartment + "-" + r.property + (r.unit.empty() ? "" : "(" + r.unit + ")"));
+      continue;
+    }
+    SEDataRequestScalar* ds = track->GetScalar(dr);
     out.push_back(ds ? ds->Heading : std::string());
   }
   return out;

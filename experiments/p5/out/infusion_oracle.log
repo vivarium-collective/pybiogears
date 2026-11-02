@@ -1,0 +1,78 @@
+2026-11-02 14:37 <WARNING>  [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:37 <WARNING>  [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 14:37 <INFO>  [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 14:37 <INFO>  [0s] Executing Scenario 
+2026-11-02 14:37 <INFO>  [1m0s] Current Time is 60s, it took 9.667s to simulate the past 60s 
+2026-11-02 14:37 <INFO>  [1m59s] Current Time is 120s, it took 10.063s to simulate the past 60s 
+2026-11-02 14:37 <INFO>  [3m0s] Current Time is 180s, it took 10.103s to simulate the past 60s 
+2026-11-02 14:37 <INFO>  [4m0s] Current Time is 240s, it took 10.607s to simulate the past 60s 
+2026-11-02 14:38 <INFO>  [5m0s] Current Time is 300s, it took 9.942s to simulate the past 60s 
+2026-11-02 14:38 <INFO>  [5m0s] [Action] 300.02(s), Patient Action : Compound Infusion
+	Rate: 100(mL/min)
+	Bag Volume: 1000(mL)
+	Substance Compound: Saline 
+2026-11-02 14:38 <INFO>  [5m59s] Current Time is 360s, it took 10.979s to simulate the past 60s 
+2026-11-02 14:38 <INFO>  [6m27s] [Event] 387.98(s),  The patient is in a state of metabolic alkalosis 
+2026-11-02 14:38 <INFO>  [6m59s] Current Time is 420s, it took 10.708s to simulate the past 60s 
+2026-11-02 14:38 <INFO>  [7m59s] Current Time is 480s, it took 10.11s to simulate the past 60s 
+2026-11-02 14:38 <INFO>  [8m59s] Current Time is 540s, it took 10.891s to simulate the past 60s 
+2026-11-02 14:38 <INFO>  [9m59s] Current Time is 600s, it took 11.023s to simulate the past 60s 
+2026-11-02 14:39 <INFO>  [10m59s] Current Time is 660s, it took 11.129s to simulate the past 60s 
+2026-11-02 14:39 <INFO>  [11m59s] Current Time is 720s, it took 10.777s to simulate the past 60s 
+2026-11-02 14:39 <INFO>  [12m54s] [Event] 774.58(s),  Patient has entered state : RespiratoryAlkalosis 
+2026-11-02 14:39 <INFO>  [12m59s] Current Time is 780s, it took 10.221s to simulate the past 60s 
+2026-11-02 14:39 <INFO>  [13m59s] Current Time is 840s, it took 9.533s to simulate the past 60s 
+2026-11-02 14:39 <INFO>  [14m59s] Current Time is 900s, it took 10.554s to simulate the past 60s 
+2026-11-02 14:39 <INFO>  [15m59s] Current Time is 960s, it took 9.864s to simulate the past 60s 
+2026-11-02 14:40 <INFO>  [16m59s] Current Time is 1020s, it took 9.524s to simulate the past 60s 
+2026-11-02 14:40 <INFO>  [17m53s] [Event] 1073.22(s),  The patient is shivering 
+2026-11-02 14:40 <INFO>  [17m59s] Current Time is 1080s, it took 9.955s to simulate the past 60s 
+2026-11-02 14:40 <INFO>  [18m59s] Current Time is 1140s, it took 9.797s to simulate the past 60s 
+2026-11-02 14:40 <INFO>  [19m59s] Stomach is out of Sodium 
+2026-11-02 14:40 <INFO>  [19m59s] Current Time is 1200s, it took 9.977s to simulate the past 60s 
+2026-11-02 14:40 <INFO>  [20m59s] Current Time is 1260s, it took 10.072s to simulate the past 60s 
+2026-11-02 14:40 <INFO>  [21m59s] Current Time is 1320s, it took 10.106s to simulate the past 60s 
+2026-11-02 14:41 <INFO>  [22m59s] Current Time is 1380s, it took 9.098s to simulate the past 60s 
+2026-11-02 14:41 <INFO>  [23m59s] Current Time is 1440s, it took 9.578s to simulate the past 60s 
+2026-11-02 14:41 <INFO>  [24m59s] Current Time is 1500s, it took 11.063s to simulate the past 60s 
+2026-11-02 14:41 <INFO>  [25m59s] Current Time is 1560s, it took 10.403s to simulate the past 60s 
+2026-11-02 14:41 <INFO>  [26m59s] Current Time is 1620s, it took 10.623s to simulate the past 60s 
+2026-11-02 14:41 <INFO>  [27m59s] Current Time is 1680s, it took 9.672s to simulate the past 60s 
+2026-11-02 14:42 <INFO>  [28m59s] Current Time is 1740s, it took 9.883s to simulate the past 60s 
+2026-11-02 14:42 <INFO>  [29m59s] Current Time is 1800s, it took 10.872s to simulate the past 60s 
+2026-11-02 14:42 <INFO>  [30m59s] Current Time is 1860s, it took 10.59s to simulate the past 60s 
+2026-11-02 14:42 <INFO>  [31m59s] Current Time is 1920s, it took 9.746s to simulate the past 60s 
+2026-11-02 14:42 <INFO>  [32m59s] Current Time is 1980s, it took 10.278s to simulate the past 60s 
+2026-11-02 14:42 <INFO>  [33m59s] Current Time is 2040s, it took 10.407s to simulate the past 60s 
+2026-11-02 14:43 <INFO>  [34m59s] Current Time is 2100s, it took 10.68s to simulate the past 60s 
+2026-11-02 14:43 <INFO>  [35m59s] Current Time is 2160s, it took 9.818s to simulate the past 60s 
+2026-11-02 14:43 <INFO>  [36m59s] Current Time is 2220s, it took 10.391s to simulate the past 60s 
+2026-11-02 14:43 <INFO>  [37m59s] Current Time is 2280s, it took 9.622s to simulate the past 60s 
+2026-11-02 14:43 <INFO>  [38m59s] Current Time is 2340s, it took 10.247s to simulate the past 60s 
+2026-11-02 14:43 <INFO>  [39m59s] Current Time is 2400s, it took 10.384s to simulate the past 60s 
+2026-11-02 14:44 <INFO>  [40m59s] Current Time is 2460s, it took 9.922s to simulate the past 60s 
+2026-11-02 14:44 <INFO>  [41m59s] Current Time is 2520s, it took 9.791s to simulate the past 60s 
+2026-11-02 14:44 <INFO>  [42m59s] Current Time is 2580s, it took 9.695s to simulate the past 60s 
+2026-11-02 14:44 <INFO>  [43m59s] Current Time is 2640s, it took 9.969s to simulate the past 60s 
+2026-11-02 14:44 <INFO>  [44m59s] Current Time is 2700s, it took 9.837s to simulate the past 60s 
+2026-11-02 14:44 <INFO>  [45m59s] Current Time is 2760s, it took 9.732s to simulate the past 60s 
+2026-11-02 14:45 <INFO>  [46m59s] Current Time is 2820s, it took 10.114s to simulate the past 60s 
+2026-11-02 14:45 <INFO>  [47m59s] Current Time is 2880s, it took 10.356s to simulate the past 60s 
+2026-11-02 14:45 <INFO>  [48m59s] Current Time is 2940s, it took 9.707s to simulate the past 60s 
+2026-11-02 14:45 <INFO>  [49m59s] Current Time is 3000s, it took 9.536s to simulate the past 60s 
+2026-11-02 14:45 <INFO>  [50m59s] Current Time is 3060s, it took 9.642s to simulate the past 60s 
+2026-11-02 14:45 <INFO>  [51m59s] Current Time is 3120s, it took 9.774s to simulate the past 60s 
+2026-11-02 14:46 <INFO>  [52m59s] Current Time is 3180s, it took 9.818s to simulate the past 60s 
+2026-11-02 14:46 <INFO>  [53m59s] Current Time is 3240s, it took 9.379s to simulate the past 60s 
+2026-11-02 14:46 <INFO>  [54m59s] Current Time is 3300s, it took 10.002s to simulate the past 60s 
+2026-11-02 14:46 <INFO>  [55m59s] Current Time is 3360s, it took 10.895s to simulate the past 60s 
+2026-11-02 14:46 <INFO>  [56m59s] Current Time is 3420s, it took 10.565s to simulate the past 60s 
+2026-11-02 14:46 <INFO>  [57m59s] Current Time is 3480s, it took 10.258s to simulate the past 60s 
+2026-11-02 14:47 <INFO>  [58m59s] Current Time is 3540s, it took 9.712s to simulate the past 60s 
+2026-11-02 14:47 <INFO>  [59m59s] Current Time is 3600s, it took 9.825s to simulate the past 60s 
+2026-11-02 14:47 <INFO>  [1h0m59s] Current Time is 3660s, it took 9.962s to simulate the past 60s 
+2026-11-02 14:47 <INFO>  [1h1m59s] Current Time is 3720s, it took 10.556s to simulate the past 60s 
+2026-11-02 14:47 <INFO>  [1h2m59s] Current Time is 3780s, it took 9.635s to simulate the past 60s 
+2026-11-02 14:47 <INFO>  [1h3m59s] Current Time is 3840s, it took 9.465s to simulate the past 60s 
+2026-11-02 14:48 <INFO>  [1h4m59s] Current Time is 3900s, it took 9.862s to simulate the past 60s 
+2026-11-02 14:48 <INFO>  [1h5m0s] It took 657.007s to run this simulation 

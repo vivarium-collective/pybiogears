@@ -6,6 +6,7 @@
 // Licensed under the Apache License, Version 2.0.
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -22,7 +23,14 @@ namespace pybiogears {
 // One data request. `category` is one of:
 //   Physiology, Patient, Environment, Equipment, Substance,
 //   LiquidCompartment, GasCompartment, TissueCompartment, ThermalCompartment
+//   FluidPath, FluidNode  (circuit elements of the active cardiovascular circuit;
+//                          `compartment` holds the path or node name)
 // `compartment` and `substance` are used only by the categories that need them.
+// FluidPath properties: Flow, FlowSource, PressureSource, Resistance, Compliance.
+// FluidNode properties: Pressure, Volume.
+// These read engine circuit scalars directly (public BioGears::GetCircuits()),
+// for quantities that have no compartment or system request, e.g. lymph flow:
+// BioGears 8.2.0 creates no compartment links for lymph.
 struct DataRequest {
   std::string category;
   std::string property;
@@ -92,6 +100,7 @@ public:
 
 private:
   void connect_requests();
+  std::function<double()> circuit_reader(const DataRequest& r);
   std::string temp_path(const std::string& stem, const std::string& ext) const;
 
   std::string m_working_dir;
@@ -101,6 +110,7 @@ private:
   std::vector<DataRequest> m_requests;
   std::vector<biogears::SEDataRequest*> m_se_requests; // owned by the engine's request manager
   std::vector<bool> m_connected;
+  std::vector<std::function<double()>> m_direct; // circuit readers; empty for SE data requests
   bool m_ready = false;
   unsigned m_tmp_counter = 0;
 };
