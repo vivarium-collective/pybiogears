@@ -71,6 +71,12 @@ if [[ "$(uname)" == "Darwin" ]]; then
   command -v brew >/dev/null || die "Homebrew not found"
   BREW="$(brew --prefix)"
   CMAKE_EXTRA+=("-DCMAKE_PREFIX_PATH=$BREW;$(brew --prefix xerces-c 2>/dev/null || echo "$BREW")")
+  # BioGears bundles zlib 1.2.11 (projects/zip/lib/zlib), whose zutil.h does
+  # `#define fdopen(fd,mode) NULL` when TARGET_OS_MAC is defined; recent macOS
+  # SDKs define it, and the macro breaks <stdio.h> (fixed in zlib 1.2.12).
+  # zutil.h skips that define if fdopen is already a macro, so make it one
+  # that expands to itself. C only; BioGears' sources are not touched.
+  CMAKE_EXTRA+=("-DCMAKE_C_FLAGS=-Dfdopen=fdopen")
 fi
 
 # --- source -------------------------------------------------------------------
