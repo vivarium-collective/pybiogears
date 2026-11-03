@@ -6,3 +6,4 @@ __pycache__/
 .pybiogears_tmp_*
 
 experiments/p5/out/StandardMale@0s_8.2.0.xml
+studies/*/out/
