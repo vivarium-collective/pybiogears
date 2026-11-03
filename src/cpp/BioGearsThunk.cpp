@@ -106,11 +106,16 @@ BioGearsThunk::BioGearsThunk(const std::string& working_dir, const std::string& 
 {
   if (!fs::is_directory(working_dir))
     throw std::runtime_error("BioGears working directory does not exist: " + working_dir);
-  m_engine = CreateBioGearsEngine(working_dir, log_file);
+  // The engine logs while it is constructed (loading substances), so quiet the console
+  // and attach the forwarder before: give BioGears a logger set up beforehand.
+  m_logger = std::make_unique<Logger>(log_file);
+  m_logger->LogToConsole(false);
+  m_logger->SetConsoleLogLevel(Logger::eFatal);
+  m_logger->SetForward(m_log_forward.get());
+  m_engine = CreateBioGearsEngine(working_dir, m_logger.get());
   if (!m_engine)
     throw std::runtime_error("CreateBioGearsEngine returned null");
   set_log_to_console(false);
-  m_engine->GetLogger()->SetForward(m_log_forward.get());
   m_engine->SetEventHandler(m_event_handler.get());
   // The thunk reads its requests itself (pull_data). With auto-tracking on,
   // every AdvanceModelTime sample re-runs PhysiologyEngineTrack::SetupRequests,

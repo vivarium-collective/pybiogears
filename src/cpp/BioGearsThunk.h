@@ -116,6 +116,7 @@ private:
   std::string m_working_dir;
   std::unique_ptr<ThunkLogForward> m_log_forward;
   std::unique_ptr<ThunkEventHandler> m_event_handler;
+  std::unique_ptr<biogears::Logger> m_logger; // outlives m_engine (declared before it)
   std::unique_ptr<biogears::PhysiologyEngine> m_engine;
   std::vector<DataRequest> m_requests;
   std::vector<biogears::SEDataRequest*> m_se_requests; // owned by the engine's request manager
