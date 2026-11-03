@@ -64,6 +64,13 @@ Request categories: `Physiology`, `Patient`, `Environment`, `Equipment`, `Substa
 - `save_state(path)` / `save_state_bytes()` and `load_state(path)` / `load_state_bytes(blob)` round-trip a run to about 1e-12, including active hemorrhages and infusions (probe P3). Requests are re-created after every load.
 - `process_actions(xml)` takes one or more BioGears scenario `<Action>` elements; `pybiogears.actions` builds the common ones. They match BioGears' own `bg-scenario` to its output precision (probe P4). Note that `bg-scenario` runs each `AdvanceTime` of T seconds as int(T/dt)+1 steps, so its actions land 0.02 s later per segment.
 
+### Errors, events and logging
+
+- Bad request names, units, compartments and substances are reported **unconnected** and read NaN, with the reason in `engine.log` (probe P7). `set_requests` returns the connected flags.
+- Bad actions raise `BioGearsError`. Reaching BioGears' irreversible state raises `IrreversibleStateError` from `advance`.
+- `engine.events` collects patient and equipment events (`event`, `active`, `sim_time_s`), including per-beat and per-breath markers. `engine.log` collects engine messages; both are bounded (`log_limit`, default 10,000). BioGears forwards its `Fatal` messages as `Error`.
+- Engines are deterministic: identical inputs give bit-identical outputs across runs, processes and concurrent threads (probe P6). Requesting an inactive substance activates it and changes results at the 1e-13 level, so keep request sets fixed across runs that must match exactly.
+
 ### BioGears 8.2.0 issues worked around in pybiogears
 
 | issue | effect without the workaround | probe |
@@ -73,6 +80,12 @@ Request categories: `Physiology`, `Patient`, `Environment`, `Equipment`, `Substa
 | no compartment links for lymph | lymph flow unreadable by standard requests (now: `FluidPath`) | P5 |
 | `LoadState` re-marshals existing requests as the base type | "Unsupported DataRequest Received" per request on every load | P3 |
 | compound components appended, not replaced, on load | an infusion active across a reload delivers double solutes | P3 |
+| hemorrhage on an unknown compartment accepted, then a null dereference | segfault of the Python process on the next step (now: refused with `BioGearsError`) | P7 |
+| unknown compound throws from the action factory | raw `RuntimeError`, temporary file left behind (now: `BioGearsError`, file removed) | P7 |
+| `LoadState` rebuilds the patient without the event handler | no events after a load (now: re-attached) | P7 |
+| irreversible state: `AdvanceModelTime` returns false silently | unexplained failure (now: `IrreversibleStateError`) | P7 |
+| `Logger::LogToConsole` is a no-op | engine messages on stdout (now: console level `eFatal` when off) | P7 |
+| a bleed above cardiac output is re-reported every step | unbounded Python log (now: `log` and `events` are bounded deques) | P7 |
 
 ## Tests
 

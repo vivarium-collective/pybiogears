@@ -1,7 +1,7 @@
 """pybiogears: a Python binding for the BioGears physiology engine."""
 
 from ._pybiogears import BioGearsThunk, DataRequest, EventChange, LogMessage
-from .engine import BioGearsEngine, BioGearsError
+from .engine import BioGearsEngine, BioGearsError, IrreversibleStateError
 from . import actions
 
 __all__ = [
@@ -10,6 +10,7 @@ __all__ = [
     "BioGearsThunk",
     "DataRequest",
     "EventChange",
+    "IrreversibleStateError",
     "LogMessage",
     "actions",
     "biogears_version",

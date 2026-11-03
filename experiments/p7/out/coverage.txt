@@ -1,0 +1,120 @@
+4576 distinct requests from BioGears' own scenario and data-request files
+category              total  connected  finite at 10 s
+Environment               8          8               8
+Equipment                 1          1               1
+GasCompartment          328        324             316
+LiquidCompartment      3310       3310            3255
+Patient                  27         27              27
+Physiology              228        226             225
+Substance               524        522             518
+ThermalCompartment       32         24              19
+TissueCompartment       118        117             117
+
+Not connected:
+  GasCompartment: Carina/CarbonDioxide/PartialPressure (mmHg)
+  GasCompartment: LeftDeadSpace//Volume (L)
+  GasCompartment: RightDeadSpace//Volume (L)
+  GasCompartment: RightDeadSpace/ForestFireParticulate/MassDeposited (ug)
+  Physiology: //HeartRhythm ()
+  Physiology: //UrineColor ()
+  Substance: Kidneys/Sodium/MassCleared (g)
+  Substance: Kidneys/Sodium/MassExcreted (g)
+  ThermalCompartment: ExternalSkin//Heat (J)
+  ThermalCompartment: ExternalSkin//HeatTransferRateIn (W)
+  ThermalCompartment: ExternalSkin//HeatTransferRateOut (W)
+  ThermalCompartment: ExternalSkin//Temperature (degC)
+  ThermalCompartment: InternalSkin//Heat (J)
+  ThermalCompartment: InternalSkin//HeatTransferRateIn (W)
+  ThermalCompartment: InternalSkin//HeatTransferRateOut (W)
+  ThermalCompartment: InternalSkin//Temperature (degC)
+  TissueCompartment: LiverTissueIntracellular//InFlow (mL/s)
+
+Connected but not finite at 10 s:
+  GasCompartment: GasSource//Volume (mL) = inf
+  GasCompartment: GasSource/CarbonDioxide/Volume (mL) = inf
+  GasCompartment: GasSource/Nitrogen/Volume (mL) = inf
+  GasCompartment: GasSource/Oxygen/Volume (mL) = inf
+  GasCompartment: VentilatorConnection//InFlow (mL/s) = nan
+  GasCompartment: VentilatorConnection//OutFlow (mL/s) = nan
+  GasCompartment: VentilatorConnection//Pressure (mmHg) = nan
+  GasCompartment: VentilatorConnection//Volume (mL) = nan
+  LiquidCompartment: BoneTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: BoneTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: BoneTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: BoneTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: BrainTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: BrainTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: BrainTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: BrainTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: FatTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: FatTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: FatTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: FatTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: GutTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: GutTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: GutTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: GutTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: LeftKidneyTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: LeftKidneyTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: LeftKidneyTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: LeftKidneyTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: LeftLungTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: LeftLungTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: LiverTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: LiverTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: LiverTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: Lymph//InFlow (mL/s) = nan
+  LiquidCompartment: Lymph//OutFlow (mL/s) = nan
+  LiquidCompartment: MuscleTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: MuscleTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: MuscleTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: MuscleTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: MyocardiumTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: MyocardiumTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: MyocardiumTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: MyocardiumTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: Pericardium//InFlow (mL/s) = nan
+  LiquidCompartment: Pericardium//OutFlow (mL/s) = nan
+  LiquidCompartment: RightKidneyTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: RightKidneyTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: RightKidneyTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: RightKidneyTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: RightLungTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: RightLungTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: RightLungTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: RightLungTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: SkinTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: SkinTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: SkinTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: SkinTissueIntracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: SmallIntestineChyme//InFlow (mL/s) = nan
+  LiquidCompartment: SmallIntestineChyme//OutFlow (mL/s) = nan
+  LiquidCompartment: SpleenTissueExtracellular//InFlow (mL/s) = nan
+  LiquidCompartment: SpleenTissueExtracellular//OutFlow (mL/s) = nan
+  LiquidCompartment: SpleenTissueIntracellular//InFlow (mL/s) = nan
+  LiquidCompartment: SpleenTissueIntracellular//OutFlow (mL/s) = nan
+  Physiology: //CreatinineProductionRate (umol/s) = nan
+  Substance: /Calcium/PlasmaConcentration (mg/dL) = nan
+  Substance: /Chloride/PlasmaConcentration (mg/dL) = nan
+  Substance: /Potassium/PlasmaConcentration (mg/dL) = nan
+  Substance: /Sodium/PlasmaConcentration (mg/dL) = nan
+  ThermalCompartment: Active//Heat (J) = nan
+  ThermalCompartment: Ambient//Heat (J) = nan
+  ThermalCompartment: Clothing//Heat (J) = nan
+  ThermalCompartment: Enclosure//Heat (J) = nan
+  ThermalCompartment: ExternalCore//Heat (J) = nan
+
+Distinct errors logged (11):
+     8 x Unknown thermal compartment : ExternalSkin
+     8 x Unknown thermal compartment : InternalSkin
+     4 x Unknown gas compartment : RightDeadSpace
+     2 x Unknown gas compartment : Carina
+     2 x Unknown gas compartment : LeftDeadSpace
+     2 x Unknown Data Request : HeartRhythm
+     2 x Unknown Data Request : UrineColor
+     2 x Unhandled data request : MassCleared
+
+     2 x Unhandled data request : MassExcreted
+
+     2 x Unknown tissue compartment : LiverTissueIntracellular
+     1 x Particle distribution histogram is not valid

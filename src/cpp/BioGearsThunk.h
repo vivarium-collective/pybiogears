@@ -84,6 +84,7 @@ public:
   bool advance(double seconds);
   bool advance_steps(long n); // exactly n engine time steps
   double sim_time_s() const;
+  bool irreversible_state() const; // patient IrreversibleState event active
   double time_step_s() const;
   // `actions_xml` is one or more BioGears scenario <Action> elements, e.g.
   //   <Action xsi:type="HemorrhageData" ...>...</Action>
@@ -103,6 +104,7 @@ private:
   void connect_requests();
   void drop_requests();
   void dedupe_compound_components();
+  void after_load();
   std::function<double()> circuit_reader(const DataRequest& r);
   std::string temp_path(const std::string& stem, const std::string& ext) const;
 

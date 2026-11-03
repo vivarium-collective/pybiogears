@@ -1,0 +1,18 @@
+{
+  "connected": "30/30",
+  "same_process_bit_identical": true,
+  "separate_processes_bit_identical": true,
+  "threads_bit_identical_to_sequential": true,
+  "step_ms_rest_median": 3.11069762000443,
+  "step_ms_actions_median": 3.196819970003162,
+  "step_ms_p99": 4.056557018398505,
+  "real_time_factor_one_engine": 6.232613181419584,
+  "real_time_factor_two_threads_each": 5.911644668737606,
+  "throughput_two_threads_vs_one": 1.897003551050196,
+  "pull_us_30_requests": 7.017802500058679,
+  "create_engine_s": 0.0396222399999715,
+  "load_state_file_s": 0.23491901799980042,
+  "load_state_bytes_s": 0.18340691799994602,
+  "errors": [],
+  "note": "real_time_factor_one_engine and throughput_two_threads_vs_one corrected by the 50 steps per sample after the run (the script is fixed); machine: 2-core x86_64 cloud VM"
+}

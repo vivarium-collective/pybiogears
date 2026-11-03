@@ -1,0 +1,39 @@
+1. Bad data requests (one engine; connected flag, value after 2 s, what was logged)
+   unknown physiology property    connected=False value=np.float64(nan)        Unknown Data Request : NoSuchThing
+   empty property                 connected=False value=np.float64(nan)        Unknown Data Request : 
+   property in wrong category     connected=False value=np.float64(nan)        Unknown Data Request : HeartRate
+   incompatible unit              connected=False value=np.float64(nan)        pybiogears: request HeartRate: mL is not a valid Frequency unit
+   nonexistent unit               connected=False value=np.float64(nan)        pybiogears: request HeartRate: beats is not a valid Frequency unit
+   unknown liquid compartment     connected=False value=np.float64(nan)        Unknown liquid compartment : Nowhere
+   unknown compartment property   connected=False value=np.float64(nan)        Unknown Data Request : Colour
+   unknown substance              connected=False value=np.float64(nan)        
+   unknown tissue compartment     connected=False value=np.float64(nan)        Unknown tissue compartment : Nowhere
+   unknown circuit path           connected=False value=np.float64(nan)        
+   circuit path, bad property     connected=False value=np.float64(nan)        
+   equipment (none connected)     connected=False value=np.float64(nan)        Unknown Data Request : Inhaler
+   valid control                  connected=True  value=np.float64(72.29296753992126) 
+   unknown category               raised ValueError: unknown data request category: NoSuchCategory
+
+2. Does requesting an inactive substance change the simulation?
+   Aorta Morphine concentration                  bit-identical=False max rel diff after 60 s 1.3e-13; connected=True
+   Morphine plasma concentration                 bit-identical=False max rel diff after 60 s 1.3e-13; connected=True
+   Aorta CarbonMonoxide partial pressure         bit-identical=True  max rel diff after 60 s 0.0e+00; connected=True
+   Aorta Glucose concentration (already active)  bit-identical=True  max rel diff after 60 s 0.0e+00; connected=True
+
+3. Bad actions (process_actions): raised?, then what was logged
+   malformed XML                        raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : /home/claude/bg-install2/share/biogears/runtim
+   unknown action type                  raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : /home/claude/bg-install2/share/biogears/runtim
+   unknown compound                     raised BioGearsError         advance ok, HR 72.4    | pybiogears: actions could not be read: PatientActions:Factory - Unknown substanc
+   hemorrhage, unknown compartment      raised BioGearsError         advance ok, HR 72.4    | pybiogears: hemorrhage refused, compartment has no bleed path: Nowhere
+   hemorrhage, negative rate            accepted                     advance ok, HR 72.4    | 
+   AdvanceTime inside process_actions   raised BioGearsError         advance ok, HR 72.4    | Unsupported Action
+   empty string                         raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : /home/claude/bg-install2/share/biogears/runtim
+
+4. Hemorrhage above cardiac output (BioGears logs Fatal and returns from the bleed calculation)
+   advance(5) returned normally; BV 5532.4 mL; logged: Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the c
+
+5. Exsanguination to the irreversible state
+   advance raised IrreversibleStateError at t = 186.8 s: patient reached the irreversible state at t = 186.80 s; the engine will not advance
+   events: [('StartOfCardiacCycle', True, 0.66), ('StartOfCardiacCycle', False, 0.68), ('StartOfInhale', True, 1.0), ('StartOfInhale', False, 1.02), ('StartOfCardiacCycle', True, 1.5), ('StartOfCardiacCycle', False, 1.52), ('StartOfExhale', True, 2.28), ('StartOfExhale', False, 2.3), ('StartOfCardiacCycle', True, 2.34), ('StartOfCardiacCycle', False, 2.36), ('StartOfCardiacCycle', True, 3.14), ('StartOfCardiacCycle', False, 3.16)]
+   last values: HR 129.4, MAP 45.0, BV 2767
+   a further advance raised IrreversibleStateError again

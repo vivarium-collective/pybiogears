@@ -1,0 +1,70 @@
+2026-11-02 19:02 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:02 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:02 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 19:02 <INFO> [1m0s] [Action] 60(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  150(mL/min)
+	Compartment: Aorta
+	Injury Code: 32640 
+2026-11-02 19:02 <INFO> [1m0s] [Action] 60(s), Patient Action : Compound Infusion
+	Rate: 100(mL/min)
+	Bag Volume: 500(mL)
+	Substance Compound: Saline 
+2026-11-02 19:02 <INFO> [2m54s] [Event] 174.22(s),  Patient has entered state : MildHypernatremia 
+2026-11-02 19:03 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:03 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:03 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 19:03 <INFO> [1m0s] [Action] 60(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  150(mL/min)
+	Compartment: Aorta
+	Injury Code: 32640 
+2026-11-02 19:03 <INFO> [1m0s] [Action] 60(s), Patient Action : Compound Infusion
+	Rate: 100(mL/min)
+	Bag Volume: 500(mL)
+	Substance Compound: Saline 
+2026-11-02 19:03 <INFO> [2m54s] [Event] 174.22(s),  Patient has entered state : MildHypernatremia 
+2026-11-02 19:05 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:05 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:05 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:05 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 19:05 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:05 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 19:05 <INFO> [1m0s] [Action] 60(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  150(mL/min)
+	Compartment: Aorta
+	Injury Code: 32640 
+2026-11-02 19:05 <INFO> [1m0s] [Action] 60(s), Patient Action : Compound Infusion
+	Rate: 100(mL/min)
+	Bag Volume: 500(mL)
+	Substance Compound: Saline 
+2026-11-02 19:05 <INFO> [1m0s] [Action] 60(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  150(mL/min)
+	Compartment: Aorta
+	Injury Code: 32640 
+2026-11-02 19:05 <INFO> [1m0s] [Action] 60(s), Patient Action : Compound Infusion
+	Rate: 100(mL/min)
+	Bag Volume: 500(mL)
+	Substance Compound: Saline 
+2026-11-02 19:05 <INFO> [2m54s] [Event] 174.22(s),  Patient has entered state : MildHypernatremia 
+2026-11-02 19:05 <INFO> [2m54s] [Event] 174.22(s),  Patient has entered state : MildHypernatremia 
+2026-11-02 19:06 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:06 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:06 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 19:06 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 19:06 <INFO> [5m0s] Biogears has sucesfully loaded StandardMale. 
+{
+  "connected": "30/30",
+  "same_process_bit_identical": true,
+  "separate_processes_bit_identical": true,
+  "threads_bit_identical_to_sequential": true,
+  "step_ms_rest_median": 3.11069762000443,
+  "step_ms_actions_median": 3.196819970003162,
+  "step_ms_p99": 4.056557018398505,
+  "real_time_factor_one_engine": 311.6306590709792,
+  "real_time_factor_two_threads_each": 5.911644668737606,
+  "throughput_two_threads_vs_one": 0.03794007102100392,
+  "pull_us_30_requests": 7.017802500058679,
+  "create_engine_s": 0.0396222399999715,
+  "load_state_file_s": 0.23491901799980042,
+  "load_state_bytes_s": 0.18340691799994602,
+  "errors": []
+}

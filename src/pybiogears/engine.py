@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from collections import deque
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -15,6 +16,10 @@ RUNTIME_ENV = "BIOGEARS_RUNTIME"
 
 class BioGearsError(RuntimeError):
     pass
+
+
+class IrreversibleStateError(BioGearsError):
+    """The patient reached BioGears' irreversible state; the engine will not advance."""
 
 
 def _runtime_dir(working_dir: str | os.PathLike | None) -> str:
@@ -39,13 +44,16 @@ class BioGearsEngine:
     are listed in :attr:`unconnected`.
     """
 
-    def __init__(self, working_dir: str | os.PathLike | None = None, log_file: str = ""):
+    def __init__(self, working_dir: str | os.PathLike | None = None, log_file: str = "",
+                 log_limit: int = 10000):
         self.working_dir = _runtime_dir(working_dir)
         self._thunk = BioGearsThunk(self.working_dir, log_file)
         self._requests: list[DataRequest] = []
         self._connected: list[bool] = []
-        self.log: list = []
-        self.events: list = []
+        # Bounded: BioGears can log every time step (e.g. a bleed rate above
+        # cardiac output is re-reported each 0.02 s step).
+        self.log: deque = deque(maxlen=log_limit)
+        self.events: deque = deque(maxlen=log_limit)
 
     # -- state ---------------------------------------------------------------
     def load_state(self, path: str | os.PathLike, sim_time_s: float | None = None) -> None:
@@ -107,14 +115,24 @@ class BioGearsEngine:
         ok = self._thunk.advance(float(seconds))
         self._drain()
         if not ok:
-            raise BioGearsError(f"AdvanceModelTime failed: {self._last_errors()}")
+            self._advance_failed()
+
+    def _advance_failed(self):
+        if self._thunk.irreversible_state:
+            raise IrreversibleStateError(
+                f"patient reached the irreversible state at t = {self.sim_time_s:.2f} s; the engine will not advance")
+        raise BioGearsError(f"AdvanceModelTime failed: {self._last_errors()}")
+
+    @property
+    def irreversible_state(self) -> bool:
+        return self._thunk.irreversible_state
 
     def advance_steps(self, n: int) -> None:
         """Advance exactly n engine time steps (see advance_steps in the thunk)."""
         ok = self._thunk.advance_steps(int(n))
         self._drain()
         if not ok:
-            raise BioGearsError(f"AdvanceModelTime failed: {self._last_errors()}")
+            self._advance_failed()
 
     def process_actions(self, actions: str | Iterable[str]) -> None:
         xml = actions if isinstance(actions, str) else "\n".join(actions)

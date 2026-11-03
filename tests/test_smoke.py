@@ -4,6 +4,7 @@ Oracles here are physical (mass balance) or BioGears' own outputs, never the bin
 """
 import math
 import os
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -136,3 +137,38 @@ def test_circuit_requests(eng):
     assert v[1] > 0  # lymph returns to the vena cava
     # The Lymph compartment maps exactly the Lymph node: an oracle independent of the circuit reader.
     assert v[2] == pytest.approx(v[3], rel=1e-12)
+
+
+def test_unknown_hemorrhage_compartment_is_refused(eng):
+    # Regression (P7): BioGears accepts it, then segfaults on the next step.
+    with pytest.raises(pb.BioGearsError, match="no bleed path"):
+        eng.process_actions(pb.actions.hemorrhage("Nowhere", 100.0))
+    eng.advance(1)  # the process is still alive and the engine still runs
+
+
+def test_unknown_compound_raises_cleanly(eng):
+    with pytest.raises(pb.BioGearsError, match="could not be read"):
+        eng.process_actions(pb.actions.substance_compound_infusion("Unobtainium", 500.0, 100.0))
+    assert not list(Path(os.environ["BIOGEARS_RUNTIME"]).glob(".pybiogears_tmp_*"))
+    eng.advance(1)
+
+
+def test_events_arrive_after_load(eng):
+    # Regression (P7): LoadState rebuilt the patient and dropped the event handler.
+    eng.advance(3)
+    assert "StartOfCardiacCycle" in {e.event for e in eng.events}
+
+
+def test_irreversible_state_raises():
+    os.chdir(os.environ["BIOGEARS_RUNTIME"])
+    e = pb.BioGearsEngine()
+    e.set_requests([pb.DataRequest("Physiology", "BloodVolume", "mL")])
+    e.load_state(STATE)
+    e.process_actions(pb.actions.hemorrhage("Aorta", 1500.0))
+    with pytest.raises(pb.IrreversibleStateError):
+        for _ in range(40):  # BioGears declares it at 50 % blood loss, ~187 s here
+            e.advance(15)
+    assert e.irreversible_state
+    assert "IrreversibleState" in {ev.event for ev in e.events}
+    with pytest.raises(pb.IrreversibleStateError):
+        e.advance(1)

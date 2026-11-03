@@ -7,6 +7,7 @@
 #include <biogears/cdm/enums/SEPatientEnums.h>
 #include <biogears/cdm/properties/SEScalarTime.h>
 #include <biogears/cdm/properties/SEUnitScalar.h>
+#include <biogears/cdm/patient/actions/SEHemorrhage.h>
 #include <biogears/cdm/scenario/SEAction.h>
 #include <biogears/cdm/scenario/SEScenario.h>
 #include <biogears/cdm/scenario/requests/SEDataRequestManager.h>
@@ -98,7 +99,7 @@ BioGearsThunk::BioGearsThunk(const std::string& working_dir, const std::string& 
   m_engine = CreateBioGearsEngine(working_dir, log_file);
   if (!m_engine)
     throw std::runtime_error("CreateBioGearsEngine returned null");
-  m_engine->GetLogger()->LogToConsole(false);
+  set_log_to_console(false);
   m_engine->GetLogger()->SetForward(m_log_forward.get());
   m_engine->SetEventHandler(m_event_handler.get());
   // The thunk reads its requests itself (pull_data). With auto-tracking on,
@@ -146,6 +147,16 @@ void BioGearsThunk::drop_requests()
 // without clearing them, so after LoadState an active compound (e.g. Saline)
 // lists every component twice and an infusion delivers double the solutes
 // (probe P3). Both copies hold the same concentration; keep the first.
+// LoadState rebuilds the patient, and BioGears forwards patient events to the
+// handler only when it is set (or at the end of InitializeEngine), so the
+// handler silently drops off after every load (probe P7). Re-attach it.
+void BioGearsThunk::after_load()
+{
+  m_engine->SetEventHandler(m_event_handler.get());
+  dedupe_compound_components();
+  connect_requests();
+}
+
 void BioGearsThunk::dedupe_compound_components()
 {
   for (SESubstanceCompound* c : m_engine->GetSubstanceManager().GetCompounds()) {
@@ -172,10 +183,8 @@ bool BioGearsThunk::load_state(const std::string& path, double sim_time_s)
     ok = m_engine->LoadState(path);
   }
   m_ready = ok;
-  if (ok) {
-    dedupe_compound_components();
-    connect_requests();
-  }
+  if (ok)
+    after_load();
   return ok;
 }
 
@@ -183,10 +192,8 @@ bool BioGearsThunk::load_state_buffer(const std::string& xml)
 {
   drop_requests();
   m_ready = m_engine->LoadState(xml.data(), xml.size());
-  if (m_ready) {
-    dedupe_compound_components();
-    connect_requests();
-  }
+  if (m_ready)
+    after_load();
   return m_ready;
 }
 
@@ -219,7 +226,7 @@ bool BioGearsThunk::initialize_engine(const std::string& patient_file)
   drop_requests();
   m_ready = m_engine->InitializeEngine(patient_file);
   if (m_ready)
-    connect_requests();
+    after_load();
   return m_ready;
 }
 
@@ -490,6 +497,11 @@ bool BioGearsThunk::advance_steps(long n)
   return true;
 }
 
+bool BioGearsThunk::irreversible_state() const
+{
+  return m_ready && m_engine->GetPatient().IsEventActive(SEPatientEventType::IrreversibleState);
+}
+
 double BioGearsThunk::sim_time_s() const { return m_engine->GetSimulationTime(TimeUnit::s); }
 double BioGearsThunk::time_step_s() const { return m_engine->GetTimeStep(TimeUnit::s); }
 
@@ -511,13 +523,36 @@ bool BioGearsThunk::process_actions(const std::string& actions_xml)
         << actions_xml << "\n  </Actions>\n</Scenario>\n";
   }
   SEScenario scenario(m_engine->GetSubstanceManager());
-  bool ok = scenario.Load(tmp);
+  bool ok = false;
+  try {
+    ok = scenario.Load(tmp);
+  } catch (const std::exception& e) { // e.g. an unknown substance compound
+    m_log_forward->Error((std::string("pybiogears: actions could not be read: ") + e.what()).c_str());
+    ok = false;
+  }
   std::remove(tmp.c_str());
   if (!ok)
     return false;
   for (const SEAction* a : scenario.GetActions()) {
-    if (!m_engine->ProcessAction(*a))
+    // BioGears 8.2.0 accepts a hemorrhage on an unknown compartment ("Could not
+    // find compartment, defaulting to Aorta") but keeps the name, and on the next
+    // step Cardiovascular::Hemorrhage dereferences the missing "<cmpt>Bleed" path:
+    // a segfault that takes the Python process down (probe P7). Refuse it here.
+    if (auto* hem = dynamic_cast<const SEHemorrhage*>(a)) {
+      auto* bg = dynamic_cast<BioGears*>(m_engine.get());
+      if (bg && bg->GetCircuits().GetActiveCardiovascularCircuit().GetPath(hem->GetCompartment() + "Bleed") == nullptr) {
+        m_log_forward->Error(("pybiogears: hemorrhage refused, compartment has no bleed path: " + hem->GetCompartment()).c_str());
+        ok = false;
+        continue;
+      }
+    }
+    try {
+      if (!m_engine->ProcessAction(*a))
+        ok = false;
+    } catch (const std::exception& e) {
+      m_log_forward->Error((std::string("pybiogears: ProcessAction threw: ") + e.what()).c_str());
       ok = false;
+    }
   }
   return ok;
 }
@@ -525,6 +560,14 @@ bool BioGearsThunk::process_actions(const std::string& actions_xml)
 // --- logging and events ----------------------------------------------------
 std::vector<LogMessage> BioGearsThunk::pull_log_messages() { return m_log_forward->drain(); }
 std::vector<EventChange> BioGearsThunk::pull_events() { return m_event_handler->drain(); }
-void BioGearsThunk::set_log_to_console(bool on) { m_engine->GetLogger()->LogToConsole(on); }
+// Logger::LogToConsole only stores a flag that BioGears 8.2.0 never reads; the
+// console stream is filtered by level alone, and there is no public way to
+// remove it. Off = console level eFatal (the lowest), so only Fatal messages
+// still reach stdout; every message still reaches the forwarder.
+void BioGearsThunk::set_log_to_console(bool on)
+{
+  m_engine->GetLogger()->LogToConsole(on);
+  m_engine->GetLogger()->SetConsoleLogLevel(on ? Logger::eInfo : Logger::eFatal);
+}
 
 } // namespace pybiogears
