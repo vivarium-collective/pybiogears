@@ -15,6 +15,7 @@
 namespace biogears {
 class PhysiologyEngine;
 class SEDataRequest;
+class SEThermalApplication;
 class Logger;
 }
 
@@ -91,6 +92,7 @@ public:
   // They are wrapped in a minimal <Scenario> document, parsed by BioGears' own
   // public SEScenario::Load, and each one is passed to ProcessAction.
   bool process_actions(const std::string& actions_xml);
+  void prune_thermal_application(const biogears::SEThermalApplication& sent);
 
   // --- logging and events --------------------------------------------------
   std::vector<LogMessage> pull_log_messages();

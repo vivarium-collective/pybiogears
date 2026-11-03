@@ -172,3 +172,41 @@ def test_irreversible_state_raises():
     assert "IrreversibleState" in {ev.event for ev in e.events}
     with pytest.raises(pb.IrreversibleStateError):
         e.advance(1)
+
+
+def _thermal(heating_W=None, applied=None):
+    """A ThermalApplication action; parts left as None are omitted."""
+    parts = ""
+    if heating_W is not None:
+        parts += (f'<ActiveHeating><Power value="{heating_W}" unit="W"/>'
+                  '<SurfaceAreaFraction value="1.0"/></ActiveHeating>')
+    if applied is not None:
+        state, temp = applied
+        parts += (f'<AppliedTemperature><State>{state}</State><Temperature value="{temp}" unit="degC"/>'
+                  '<SurfaceAreaFraction value="1.0"/></AppliedTemperature>')
+    return f'<Action xsi:type="ThermalApplicationData" AppendToPrevious="false">{parts}</Action>'
+
+
+def _skin_after(actions, seconds=120):
+    os.chdir(os.environ["BIOGEARS_RUNTIME"])
+    e = pb.BioGearsEngine()
+    e.set_requests([pb.DataRequest("Physiology", "SkinTemperature", "degC")])
+    e.load_state(STATE)
+    if actions:
+        e.process_actions(actions)
+    e.advance(seconds)
+    return float(e.pull()[1])
+
+
+def test_thermal_application_parts_left_out_or_off_are_dropped():
+    """BioGears 8.2.0 recreates omitted parts with NaN values ("Value is NaN" on the
+    next step) and applies an applied temperature whatever its State, pinning the
+    clothing node; prune_thermal_application removes both (viva-biogears probe
+    circuits-probe-2026-11-03)."""
+    rest = _skin_after(None)
+    heated = _skin_after(_thermal(heating_W=500))                    # heating alone: no NaN
+    heated_off = _skin_after(_thermal(heating_W=500, applied=("Off", 10)))
+    applied = _skin_after(_thermal(applied=("On", 40)))
+    assert heated > rest + 1.0
+    assert heated_off == pytest.approx(heated, abs=1e-9)            # Off applied temperature ignored
+    assert applied > rest + 1.0

@@ -8,6 +8,12 @@
 #include <biogears/cdm/properties/SEScalarTime.h>
 #include <biogears/cdm/properties/SEUnitScalar.h>
 #include <biogears/cdm/patient/actions/SEHemorrhage.h>
+#include <biogears/cdm/scenario/SEActionManager.h>
+#include <biogears/cdm/scenario/SEEnvironmentActionCollection.h>
+#include <biogears/cdm/system/environment/SEActiveCooling.h>
+#include <biogears/cdm/system/environment/SEActiveHeating.h>
+#include <biogears/cdm/system/environment/SEAppliedTemperature.h>
+#include <biogears/cdm/system/environment/actions/SEThermalApplication.h>
 #include <biogears/cdm/scenario/SEAction.h>
 #include <biogears/cdm/scenario/SEScenario.h>
 #include <biogears/cdm/scenario/requests/SEDataRequestManager.h>
@@ -549,12 +555,40 @@ bool BioGearsThunk::process_actions(const std::string& actions_xml)
     try {
       if (!m_engine->ProcessAction(*a))
         ok = false;
+      if (auto* thermal = dynamic_cast<const SEThermalApplication*>(a))
+        prune_thermal_application(*thermal);
     } catch (const std::exception& e) {
       m_log_forward->Error((std::string("pybiogears: ProcessAction threw: ") + e.what()).c_str());
       ok = false;
     }
   }
   return ok;
+}
+
+// BioGears 8.2.0 stores a thermal application by marshalling it to XML and back
+// (SEEnvironmentActionCollection::ProcessAction), and the unmarshalling creates
+// every part the action left out (GetActiveCooling() etc.), with NaN values: the
+// next step throws "Value is NaN" (Environment::ProcessActions). It also applies
+// an applied temperature whatever its State, pinning the clothing node to it.
+// So remove, from the stored application, each part that is absent or off in the
+// action as sent: heating or cooling without a positive power, and an applied
+// temperature whose State is not On (probe circuits-probe-2026-11-03 in viva-biogears).
+void BioGearsThunk::prune_thermal_application(const SEThermalApplication& sent)
+{
+  auto* bg = dynamic_cast<BioGears*>(m_engine.get());
+  if (bg == nullptr)
+    return;
+  SEThermalApplication* stored = bg->GetActions().GetEnvironmentActions().GetThermalApplication();
+  if (stored == nullptr)
+    return;
+  auto& s = const_cast<SEThermalApplication&>(sent);
+  if (!(s.HasActiveHeating() && s.GetActiveHeating().HasPower() && s.GetActiveHeating().GetPower().IsPositive()))
+    stored->RemoveActiveHeating();
+  if (!(s.HasActiveCooling() && s.GetActiveCooling().HasPower() && s.GetActiveCooling().GetPower().IsPositive()))
+    stored->RemoveActiveCooling();
+  if (!(s.HasAppliedTemperature() && s.GetAppliedTemperature().HasTemperature()
+        && s.GetAppliedTemperature().GetState() == SEOnOff::On))
+    stored->RemoveAppliedTemperature();
 }
 
 // --- logging and events ----------------------------------------------------
