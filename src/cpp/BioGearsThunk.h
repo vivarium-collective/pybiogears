@@ -93,6 +93,9 @@ public:
   // public SEScenario::Load, and each one is passed to ProcessAction.
   bool process_actions(const std::string& actions_xml);
   void prune_thermal_application(const biogears::SEThermalApplication& sent);
+  void save_without_requests(const std::string& path);
+  double total_blood_volume_lost_mL() const;
+  bool set_total_blood_volume_lost_mL(double value);
 
   // --- logging and events --------------------------------------------------
   std::vector<LogMessage> pull_log_messages();

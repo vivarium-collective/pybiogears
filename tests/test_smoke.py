@@ -219,3 +219,29 @@ def test_initialize_reads_conditions():
     e = pb.BioGearsEngine()
     with pytest.raises(pb.BioGearsError, match="InitializeEngine failed"):
         e.initialize("patients/StandardMale.xml", '<Condition xsi:type="ChronicAnemiaData"><Nope value="1"/></Condition>')
+
+
+def test_save_and_reload_keep_what_biogears_8_2_loses(tmp_path):
+    """BioGears 8.2.0: saving with an equipment request segfaults; an anesthesia machine's
+    empty chamber states don't reload; TotalBloodVolumeLost isn't saved (reset to 0 on load)."""
+    os.chdir(os.environ["BIOGEARS_RUNTIME"])
+    e = pb.BioGearsEngine()
+    e.set_requests([pb.DataRequest("Equipment", "VentilatorPressure", "cmH2O"),
+                    pb.DataRequest("Physiology", "TotalBloodVolumeLost", "mL")])
+    e.load_state(STATE)
+    e.process_actions(['<Action xsi:type="IntubationData" Type="Tracheal"/>',
+                       '<Action xsi:type="AnesthesiaMachineConfigurationData"><Configuration>'
+                       '<Connection>Tube</Connection><OxygenSource>Wall</OxygenSource>'
+                       '<PrimaryGas>Nitrogen</PrimaryGas><VentilatorPressure value="15" unit="cmH2O"/>'
+                       '</Configuration></Action>',
+                       pb.actions.hemorrhage("RightLeg", 200.0)])
+    e.advance(5.0)
+    path = tmp_path / "s.xml"
+    e.save_state(path)                                  # segfaulted before
+    lost = float(e.pull()[2])
+    f = pb.BioGearsEngine()
+    f.set_requests(REQ + [pb.DataRequest("Physiology", "TotalBloodVolumeLost", "mL")])
+    f.load_state(path)                                  # failed before (empty <State/>)
+    assert float(f.pull()[3]) == pytest.approx(lost, rel=1e-12)
+    g = pb.BioGearsEngine()
+    g.load_state_bytes(e.save_state_bytes())

@@ -9,6 +9,8 @@
 #include <biogears/cdm/properties/SEUnitScalar.h>
 #include <biogears/cdm/patient/actions/SEHemorrhage.h>
 #include <biogears/cdm/scenario/SEActionManager.h>
+#include <biogears/cdm/system/physiology/SECardiovascularSystem.h>
+#include <biogears/cdm/properties/SEScalarVolume.h>
 #include <biogears/cdm/scenario/SEEnvironmentActionCollection.h>
 #include <biogears/cdm/system/environment/SEActiveCooling.h>
 #include <biogears/cdm/system/environment/SEActiveHeating.h>
@@ -162,6 +164,11 @@ void BioGearsThunk::after_load()
 {
   m_engine->SetEventHandler(m_event_handler.get());
   dedupe_compound_components();
+  // A saved thermal application comes back with the parts it didn't have recreated
+  // with NaN values (the same unmarshalling as ProcessAction); drop them again.
+  if (auto* bg = dynamic_cast<BioGears*>(m_engine.get()))
+    if (SEThermalApplication* stored = bg->GetActions().GetEnvironmentActions().GetThermalApplication())
+      prune_thermal_application(*stored);
   connect_requests();
 }
 
@@ -205,11 +212,22 @@ bool BioGearsThunk::load_state_buffer(const std::string& xml)
   return m_ready;
 }
 
+// BioGears 8.2.0 writes the data requests into a saved state, and segfaults
+// marshalling an equipment request (SEEquipmentDataRequest). The requests are not
+// needed in the state (pybiogears drops them before every load anyway), so save
+// without them and reconnect afterwards.
+void BioGearsThunk::save_without_requests(const std::string& path)
+{
+  drop_requests();
+  m_engine->SaveStateToFile(path);
+  connect_requests();
+}
+
 bool BioGearsThunk::save_state(const std::string& path)
 {
   if (!m_ready)
     return false;
-  m_engine->SaveStateToFile(path);
+  save_without_requests(path);
   return fs::exists(path);
 }
 
@@ -218,7 +236,7 @@ std::string BioGearsThunk::save_state_to_string()
   if (!m_ready)
     throw std::runtime_error("engine has no state");
   const std::string tmp = temp_path("state", ".xml");
-  m_engine->SaveStateToFile(tmp);
+  save_without_requests(tmp);
   std::ifstream in(tmp, std::ios::binary);
   if (!in)
     throw std::runtime_error("SaveStateToFile did not produce " + tmp);
@@ -619,14 +637,38 @@ void BioGearsThunk::prune_thermal_application(const SEThermalApplication& sent)
   SEThermalApplication* stored = bg->GetActions().GetEnvironmentActions().GetThermalApplication();
   if (stored == nullptr)
     return;
+  // Decide every part from `sent` first: `sent` may be `stored` itself (after a load).
   auto& s = const_cast<SEThermalApplication&>(sent);
-  if (!(s.HasActiveHeating() && s.GetActiveHeating().HasPower() && s.GetActiveHeating().GetPower().IsPositive()))
+  const bool heating = s.HasActiveHeating() && s.GetActiveHeating().HasPower() && s.GetActiveHeating().GetPower().IsPositive();
+  const bool cooling = s.HasActiveCooling() && s.GetActiveCooling().HasPower() && s.GetActiveCooling().GetPower().IsPositive();
+  const bool applied = s.HasAppliedTemperature() && s.GetAppliedTemperature().HasTemperature()
+    && s.GetAppliedTemperature().GetState() == SEOnOff::On;
+  if (!heating)
     stored->RemoveActiveHeating();
-  if (!(s.HasActiveCooling() && s.GetActiveCooling().HasPower() && s.GetActiveCooling().GetPower().IsPositive()))
+  if (!cooling)
     stored->RemoveActiveCooling();
-  if (!(s.HasAppliedTemperature() && s.GetAppliedTemperature().HasTemperature()
-        && s.GetAppliedTemperature().GetState() == SEOnOff::On))
+  if (!applied)
     stored->RemoveAppliedTemperature();
+}
+
+// BioGears 8.2.0 doesn't save TotalBloodVolumeLost in a state, and resets it to 0 on
+// load, so a run continued from a saved state under-reports the blood lost. The
+// Python layer keeps the value in a comment of the saved file and restores it here.
+double BioGearsThunk::total_blood_volume_lost_mL() const
+{
+  auto* bg = dynamic_cast<BioGears*>(m_engine.get());
+  if (!m_ready || bg == nullptr || !bg->GetCardiovascular().HasTotalBloodVolumeLost())
+    return std::numeric_limits<double>::quiet_NaN();
+  return bg->GetCardiovascular().GetTotalBloodVolumeLost().GetValue(VolumeUnit::mL);
+}
+
+bool BioGearsThunk::set_total_blood_volume_lost_mL(double value)
+{
+  auto* bg = dynamic_cast<BioGears*>(m_engine.get());
+  if (!m_ready || bg == nullptr)
+    return false;
+  bg->GetCardiovascular().GetTotalBloodVolumeLost().SetValue(value, VolumeUnit::mL);
+  return true;
 }
 
 // --- logging and events ----------------------------------------------------

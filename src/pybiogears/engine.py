@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from collections import deque
 from pathlib import Path
 from typing import Iterable, Sequence
@@ -12,6 +13,19 @@ import numpy as np
 from ._pybiogears import BioGearsThunk, DataRequest
 
 RUNTIME_ENV = "BIOGEARS_RUNTIME"
+
+
+#: Empty enum elements BioGears writes but can't read back (anesthesia-machine chamber State).
+_EMPTY_ENUM = re.compile(rb"<State\s*/>|<State>\s*</State>")
+#: BioGears 8.2.0 doesn't save TotalBloodVolumeLost (and zeroes it on load); pybiogears
+#: keeps it in this comment of a saved state and restores it on load.
+_BLOOD_LOST = re.compile(rb"<!-- pybiogears TotalBloodVolumeLost_mL=([-+0-9.eE]+) -->")
+
+
+def _with_blood_lost(xml: bytes, value: float) -> bytes:
+    if value != value:  # NaN: no bleed yet, nothing to keep
+        return xml
+    return xml.rstrip() + f"\n<!-- pybiogears TotalBloodVolumeLost_mL={value!r} -->\n".encode()
 
 
 class BioGearsError(RuntimeError):
@@ -57,25 +71,44 @@ class BioGearsEngine:
 
     # -- state ---------------------------------------------------------------
     def load_state(self, path: str | os.PathLike, sim_time_s: float | None = None) -> None:
+        text = Path(path).read_bytes()
+        if _EMPTY_ENUM.search(text) or _BLOOD_LOST.search(text):
+            # BioGears 8.2.0 saves an anesthesia machine's unused vaporizer chambers as
+            # <State/>, which its own schema then rejects on load; the element is optional.
+            if sim_time_s is not None:
+                raise BioGearsError("sim_time_s is not supported for this state (pybiogears rewrites it on load)")
+            return self.load_state_bytes(_EMPTY_ENUM.sub(b"", text))
         ok = self._thunk.load_state(str(path), -1.0 if sim_time_s is None else float(sim_time_s))
+        if ok:
+            self._restore_blood_lost(text)
         self._drain()
         if not ok:
             raise BioGearsError(f"LoadState failed for {path}: {self._last_errors()}")
         self._connected = list(self._thunk.set_data_requests(self._requests))
 
     def load_state_bytes(self, xml: bytes) -> None:
-        ok = self._thunk.load_state_buffer(xml)
+        ok = self._thunk.load_state_buffer(_EMPTY_ENUM.sub(b"", xml))
+        if ok:
+            self._restore_blood_lost(xml)
         self._drain()
         if not ok:
             raise BioGearsError(f"LoadState(buffer) failed: {self._last_errors()}")
         self._connected = list(self._thunk.set_data_requests(self._requests))
 
+    def _restore_blood_lost(self, xml: bytes) -> None:
+        m = _BLOOD_LOST.search(xml)
+        if m:
+            self._thunk.set_total_blood_volume_lost_mL(float(m.group(1)))
+
     def save_state(self, path: str | os.PathLike) -> None:
         if not self._thunk.save_state(str(path)):
             raise BioGearsError(f"SaveStateToFile failed for {path}")
+        lost = self._thunk.total_blood_volume_lost_mL()
+        if lost == lost:
+            Path(path).write_bytes(_with_blood_lost(Path(path).read_bytes(), lost))
 
     def save_state_bytes(self) -> bytes:
-        return self._thunk.save_state_to_bytes()
+        return _with_blood_lost(self._thunk.save_state_to_bytes(), self._thunk.total_blood_volume_lost_mL())
 
     def initialize(self, patient_file: str, conditions: str | Iterable[str] = "") -> None:
         """Stabilize ``patient_file`` (BioGears' InitializeEngine), applying ``conditions``:
