@@ -16,6 +16,8 @@
 #include <biogears/cdm/system/environment/actions/SEThermalApplication.h>
 #include <biogears/cdm/scenario/SEAction.h>
 #include <biogears/cdm/scenario/SEScenario.h>
+#include <biogears/cdm/scenario/SEScenarioInitialParameters.h>
+#include <biogears/cdm/scenario/SECondition.h>
 #include <biogears/cdm/scenario/requests/SEDataRequestManager.h>
 #include <biogears/cdm/scenario/requests/SEEnvironmentDataRequest.h>
 #include <biogears/cdm/scenario/requests/SEEquipmentDataRequest.h>
@@ -227,10 +229,46 @@ std::string BioGearsThunk::save_state_to_string()
   return ss.str();
 }
 
-bool BioGearsThunk::initialize_engine(const std::string& patient_file)
+bool BioGearsThunk::initialize_engine(const std::string& patient_file, const std::string& conditions_xml)
 {
   drop_requests();
-  m_ready = m_engine->InitializeEngine(patient_file);
+  if (conditions_xml.empty()) {
+    m_ready = m_engine->InitializeEngine(patient_file);
+  } else {
+    // Conditions are read the way bg-scenario reads them: as a scenario's
+    // <InitialParameters>, whose SECondition objects BioGears then applies while
+    // it stabilizes the patient.
+    const std::string tmp = temp_path("conditions", ".xml");
+    {
+      std::ofstream out(tmp);
+      out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+             "<Scenario xmlns=\"uri:/mil/tatrc/physiology/datamodel\" "
+             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+             "contentVersion=\"BioGears_8.2.0\">\n"
+             "  <Name>pybiogears</Name>\n"
+             "  <Description>pybiogears conditions</Description>\n"
+             "  <InitialParameters><PatientFile>unused</PatientFile>\n"
+          << conditions_xml << "\n  </InitialParameters>\n"
+             "  <Actions><Action xsi:type=\"AdvanceTimeData\"><Time value=\"0\" unit=\"s\"/></Action></Actions>\n"
+             "</Scenario>\n";
+    }
+    SEScenario scenario(m_engine->GetSubstanceManager());
+    bool ok = false;
+    try {
+      ok = scenario.Load(tmp);
+    } catch (const std::exception& e) {
+      m_log_forward->Error((std::string("pybiogears: conditions could not be read: ") + e.what()).c_str());
+    }
+    std::remove(tmp.c_str());
+    if (!ok || !scenario.HasInitialParameters()) {
+      m_ready = false;
+      return false;
+    }
+    std::vector<const SECondition*> conditions;
+    for (SECondition* c : scenario.GetInitialParameters().GetConditions())
+      conditions.push_back(c);
+    m_ready = m_engine->InitializeEngine(patient_file, &conditions);
+  }
   if (m_ready)
     after_load();
   return m_ready;

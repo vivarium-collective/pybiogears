@@ -71,7 +71,7 @@ public:
   bool save_state(const std::string& path);
   // BioGears has no save-to-string, so this goes through a temporary file.
   std::string save_state_to_string();
-  bool initialize_engine(const std::string& patient_file);
+  bool initialize_engine(const std::string& patient_file, const std::string& conditions_xml = "");
 
   // --- data requests -------------------------------------------------------
   // Replaces all requests. Returns, for each request, whether the engine could

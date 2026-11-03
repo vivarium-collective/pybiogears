@@ -57,7 +57,7 @@ PYBIND11_MODULE(_pybiogears, m)
            }
            return py::bytes(s);
          })
-    .def("initialize_engine", &BioGearsThunk::initialize_engine, py::call_guard<py::gil_scoped_release>())
+    .def("initialize_engine", &BioGearsThunk::initialize_engine, py::arg("patient_file"), py::arg("conditions_xml") = "", py::call_guard<py::gil_scoped_release>())
     .def("set_data_requests", &BioGearsThunk::set_data_requests)
     .def("request_headings", &BioGearsThunk::request_headings)
     .def("pull_data", [](BioGearsThunk& t) {

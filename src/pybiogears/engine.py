@@ -77,8 +77,12 @@ class BioGearsEngine:
     def save_state_bytes(self) -> bytes:
         return self._thunk.save_state_to_bytes()
 
-    def initialize(self, patient_file: str) -> None:
-        ok = self._thunk.initialize_engine(patient_file)
+    def initialize(self, patient_file: str, conditions: str | Iterable[str] = "") -> None:
+        """Stabilize ``patient_file`` (BioGears' InitializeEngine), applying ``conditions``:
+        <Condition xsi:type="..."> elements in BioGears' scenario schema (ChronicAnemiaData,
+        DehydrationData, ...), as one string or several. Takes minutes."""
+        xml = conditions if isinstance(conditions, str) else "\n".join(conditions)
+        ok = self._thunk.initialize_engine(str(patient_file), xml)
         self._drain()
         if not ok:
             raise BioGearsError(f"InitializeEngine failed for {patient_file}: {self._last_errors()}")

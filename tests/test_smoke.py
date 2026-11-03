@@ -210,3 +210,12 @@ def test_thermal_application_parts_left_out_or_off_are_dropped():
     assert heated > rest + 1.0
     assert heated_off == pytest.approx(heated, abs=1e-9)            # Off applied temperature ignored
     assert applied > rest + 1.0
+
+
+def test_initialize_reads_conditions():
+    """Conditions go through a scenario's InitialParameters; a malformed one fails
+    InitializeEngine cleanly (the anemia itself is checked in viva-biogears' test_patients)."""
+    os.chdir(os.environ["BIOGEARS_RUNTIME"])
+    e = pb.BioGearsEngine()
+    with pytest.raises(pb.BioGearsError, match="InitializeEngine failed"):
+        e.initialize("patients/StandardMale.xml", '<Condition xsi:type="ChronicAnemiaData"><Nope value="1"/></Condition>')
