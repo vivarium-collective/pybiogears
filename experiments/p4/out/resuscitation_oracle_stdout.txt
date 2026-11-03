@@ -1,0 +1,3 @@
+[18:48] p4_resuscitation <WARNING> Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic.
+Reading Scenarios/p4_resuscitation.xml
+[18:48] p4_resuscitation <WARNING> Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic.

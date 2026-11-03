@@ -1,0 +1,26 @@
+2026-11-02 18:52 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:52 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:52 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 18:52 <INFO> [1m0s] [Action] 60.02(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  200(mL/min)
+	Compartment: Aorta
+	Injury Code: 42640 
+2026-11-02 18:53 <INFO> [6m0s] [Action] 360.04(s), Patient Action : Stop Hemorrhage
+	Compartment: Aorta 
+2026-11-02 18:53 <INFO> [6m0s] [Action] 360.04(s), Patient Action : Compound Infusion
+	Rate: 200(mL/min)
+	Bag Volume: 1000(mL)
+	Substance Compound: Saline 
+2026-11-02 18:53 <INFO> [6m6s] [Event] 366.14(s),  Patient has entered state : RespiratoryAlkalosis 
+2026-11-02 18:53 <INFO> [6m12s] [Event] 372.76(s),  The patient is in a state of metabolic alkalosis 
+2026-11-02 18:55 <INFO> [19m54s] [Event] 1194.92(s),  The patient is shivering 
+2026-11-02 18:55 <INFO> [19m59s] Stomach is out of Sodium 
+rows compared: 1260; max |t_binding - t_oracle| = 8.56e-10 s
+HR                 max rel diff 7.18e-15 (at t = 1055.00 s)
+MAP                max rel diff 5.75e-15 (at t = 290.00 s)
+BloodVolume        max rel diff 1.93e-16 (at t = 359.00 s)
+CVP                max rel diff 1.51e-13 (at t = 331.00 s)
+CardiacOutput      max rel diff 9.21e-14 (at t = 374.00 s)
+HemoglobinContent  max rel diff 6.33e-16 (at t = 371.00 s)
+VenaCavaVolume     max rel diff 5.51e-16 (at t = 355.00 s)
+errors logged: []

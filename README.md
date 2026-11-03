@@ -58,6 +58,32 @@ eng.advance(60.0)
 
 Request categories: `Physiology`, `Patient`, `Environment`, `Equipment`, `Substance`, `LiquidCompartment`, `GasCompartment`, `TissueCompartment`, `ThermalCompartment`, and two circuit categories, `FluidPath` (Flow, FlowSource, PressureSource, Resistance, Compliance) and `FluidNode` (Pressure, Volume), which read elements of the active cardiovascular circuit by name (put the name in `compartment`). The circuit categories exist because some quantities, such as lymph flow, have no compartment or system request in BioGears 8.2.0.
 
+### Time, state and actions
+
+- `advance(seconds)` advances simulated time; `advance_steps(n)` advances exactly n engine steps (0.02 s each). Use `advance_steps` when two runs must take identical steps (e.g. comparing a reloaded run with a continuous one): `advance(seconds)` carries BioGears' floating-point step remainder between calls.
+- `save_state(path)` / `save_state_bytes()` and `load_state(path)` / `load_state_bytes(blob)` round-trip a run to about 1e-12, including active hemorrhages and infusions (probe P3). Requests are re-created after every load.
+- `process_actions(xml)` takes one or more BioGears scenario `<Action>` elements; `pybiogears.actions` builds the common ones. They match BioGears' own `bg-scenario` to its output precision (probe P4). Note that `bg-scenario` runs each `AdvanceTime` of T seconds as int(T/dt)+1 steps, so its actions land 0.02 s later per segment.
+
+### BioGears 8.2.0 issues worked around in pybiogears
+
+| issue | effect without the workaround | probe |
+|---|---|---|
+| engine auto-tracking re-connects data requests every sample | requested units silently replaced by the engine's native units | P5 |
+| invalid unit throws from BioGears | exception out of `set_requests` (now: request reported unconnected) | P5 |
+| no compartment links for lymph | lymph flow unreadable by standard requests (now: `FluidPath`) | P5 |
+| `LoadState` re-marshals existing requests as the base type | "Unsupported DataRequest Received" per request on every load | P3 |
+| compound components appended, not replaced, on load | an infusion active across a reload delivers double solutes | P3 |
+
+## Tests
+
+```sh
+export BIOGEARS_RUNTIME=<prefix>/share/biogears/runtime
+export BIOGEARS_SCENARIO=<prefix>/bin/bg-scenario.sh   # optional: enables tests/test_oracle.py
+python -m pytest
+```
+
+All tests run the real engine. Their oracles are physical bounds and mass balance, BioGears' own outputs and saved states, or a live `bg-scenario` run, never the binding itself.
+
 ## Probes
 
 `experiments/` holds one folder per probe from the plan (P1 build, P2 minimal binding, ...), each with its script and recorded output.

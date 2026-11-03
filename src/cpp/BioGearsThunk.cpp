@@ -19,6 +19,8 @@
 #include <biogears/cdm/scenario/requests/SESubstanceDataRequest.h>
 #include <biogears/cdm/scenario/requests/SEThermalCompartmentDataRequest.h>
 #include <biogears/cdm/scenario/requests/SETissueCompartmentDataRequest.h>
+#include <biogears/cdm/substance/SESubstanceCompound.h>
+#include <biogears/cdm/substance/SESubstanceConcentration.h>
 #include <biogears/cdm/substance/SESubstanceManager.h>
 #include <biogears/cdm/utils/Logger.h>
 #include <biogears/cdm/utils/SEEventHandler.h>
@@ -34,6 +36,7 @@
 #include <filesystem>
 #include <fstream>
 #include <limits>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 
@@ -125,8 +128,41 @@ std::string BioGearsThunk::temp_path(const std::string& stem, const std::string&
 }
 
 // --- state -----------------------------------------------------------------
+// BioGearsEngine::LoadState copies the engine's existing data requests across
+// the reload, but marshals them as the base CDM::DataRequestData, which its own
+// factory rejects ("Unsupported DataRequest Received", and a null request is
+// added to the manager). The thunk re-creates its requests after every load,
+// so drop them first.
+void BioGearsThunk::drop_requests()
+{
+  m_engine->GetEngineTrack()->GetDataRequestManager().Invalidate();
+  m_se_requests.clear();
+  m_direct.clear();
+  m_connected.clear();
+}
+
+// BioGears 8.2.0's io::Substance::UnMarshall(SubstanceCompoundData) appends a
+// compound's components to the ones already loaded from substances/*.xml
+// without clearing them, so after LoadState an active compound (e.g. Saline)
+// lists every component twice and an infusion delivers double the solutes
+// (probe P3). Both copies hold the same concentration; keep the first.
+void BioGearsThunk::dedupe_compound_components()
+{
+  for (SESubstanceCompound* c : m_engine->GetSubstanceManager().GetCompounds()) {
+    std::vector<SESubstanceConcentration>& comps = c->GetComponents();
+    std::set<std::string> seen;
+    std::vector<SESubstanceConcentration> unique;
+    for (auto& sc : comps)
+      if (seen.insert(sc.GetSubstance().Name).second)
+        unique.push_back(sc);
+    if (unique.size() != comps.size())
+      comps = unique;
+  }
+}
+
 bool BioGearsThunk::load_state(const std::string& path, double sim_time_s)
 {
+  drop_requests();
   bool ok;
   if (sim_time_s >= 0) {
     SEScalarTime t;
@@ -136,16 +172,21 @@ bool BioGearsThunk::load_state(const std::string& path, double sim_time_s)
     ok = m_engine->LoadState(path);
   }
   m_ready = ok;
-  if (ok)
+  if (ok) {
+    dedupe_compound_components();
     connect_requests();
+  }
   return ok;
 }
 
 bool BioGearsThunk::load_state_buffer(const std::string& xml)
 {
+  drop_requests();
   m_ready = m_engine->LoadState(xml.data(), xml.size());
-  if (m_ready)
+  if (m_ready) {
+    dedupe_compound_components();
     connect_requests();
+  }
   return m_ready;
 }
 
@@ -175,6 +216,7 @@ std::string BioGearsThunk::save_state_to_string()
 
 bool BioGearsThunk::initialize_engine(const std::string& patient_file)
 {
+  drop_requests();
   m_ready = m_engine->InitializeEngine(patient_file);
   if (m_ready)
     connect_requests();
@@ -433,6 +475,19 @@ bool BioGearsThunk::advance(double seconds)
   if (!m_ready)
     return false;
   return m_engine->AdvanceModelTime(seconds, TimeUnit::s, false);
+}
+
+// Exactly n engine time steps. advance(seconds) goes through
+// AdvanceModelTime(time, unit), which carries a floating-point step remainder
+// between calls, so the step count for a given interval depends on history.
+bool BioGearsThunk::advance_steps(long n)
+{
+  if (!m_ready)
+    return false;
+  for (long i = 0; i < n; ++i)
+    if (!m_engine->AdvanceModelTime(false))
+      return false;
+  return true;
 }
 
 double BioGearsThunk::sim_time_s() const { return m_engine->GetSimulationTime(TimeUnit::s); }

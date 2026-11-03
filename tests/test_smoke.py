@@ -5,6 +5,7 @@ Oracles here are physical (mass balance) or BioGears' own outputs, never the bin
 import math
 import os
 
+import numpy as np
 import pytest
 
 import pybiogears as pb
@@ -54,16 +55,46 @@ def test_unknown_substance_not_created(eng):
 
 
 def test_state_bytes_round_trip(eng):
-    eng.advance(5)
+    # Exact step counts, so the reloaded run takes the same steps (probe P3: ~1e-12).
+    eng.advance_steps(250)
     blob = eng.save_state_bytes()
     assert blob.lstrip().startswith(b"<?xml")
-    eng.advance(5)
+    eng.advance_steps(250)
     a = eng.pull()
     eng.load_state_bytes(blob)
-    eng.advance(5)
+    eng.advance_steps(250)
     b = eng.pull()
-    assert abs(a[0] - b[0]) < 1e-9
-    assert abs(a[1] - b[1]) / a[1] < 1e-6  # tolerance to be set by probe P3
+    assert a[0] == pytest.approx(b[0], abs=1e-9)
+    assert np.allclose(a[1:], b[1:], rtol=1e-10, atol=0)
+
+
+def test_reload_with_requests_logs_no_errors(eng):
+    # Regression: LoadState with requests present logged "Unsupported DataRequest Received".
+    blob = eng.save_state_bytes()
+    eng.load_state_bytes(blob)
+    assert not [m for m in eng.log if m.level in ("Error", "Fatal")]
+
+
+def test_active_infusion_survives_reload():
+    # Regression: after LoadState, an active compound listed every component twice,
+    # so the reloaded run infused double solutes (P3: 1e-5 in blood volume after 60 s).
+    os.chdir(os.environ["BIOGEARS_RUNTIME"])
+    req = [pb.DataRequest("Physiology", "BloodVolume", "mL"),
+           pb.DataRequest("Physiology", "MeanArterialPressure", "mmHg")]
+    a = pb.BioGearsEngine()
+    a.set_requests(req)
+    a.load_state(STATE)
+    a.process_actions(pb.actions.substance_compound_infusion("Saline", 1000.0, 200.0))
+    a.advance_steps(500)
+    blob = a.save_state_bytes()
+    a.advance_steps(3000)
+    b = pb.BioGearsEngine()
+    b.set_requests(req)
+    b.load_state_bytes(blob)
+    b.advance_steps(3000)
+    va, vb = a.pull(), b.pull()
+    assert va[1] > 5600  # the infusion kept running
+    assert vb[1] == pytest.approx(va[1], rel=1e-9)
 
 
 def test_requested_units_are_honoured(eng):

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scenario xmlns="uri:/mil/tatrc/physiology/datamodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" contentVersion="BioGears_8.2.0">
+  <Name>p4_infusion</Name>
+  <Description>pybiogears probe P4 oracle: infusion</Description>
+  <EngineStateFile>./states/StandardMale@0s.xml</EngineStateFile>
+  <DataRequests SamplesPerSecond="1">
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="HeartRate" Unit="1/min" Precision="12"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="MeanArterialPressure" Unit="mmHg" Precision="12"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="BloodVolume" Unit="mL" Precision="12"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="CentralVenousPressure" Unit="mmHg" Precision="12"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="CardiacOutput" Unit="L/min" Precision="12"/>
+    <DataRequest xsi:type="PhysiologyDataRequestData" Name="HemoglobinContent" Unit="g" Precision="12"/>
+    <DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava" Name="Volume" Unit="mL" Precision="12"/>
+  </DataRequests>
+  <Actions>
+    <Action xsi:type="AdvanceTimeData"><Time value="60" unit="s"/></Action>
+    <Action xsi:type="SubstanceCompoundInfusionData"><SubstanceCompound>Saline</SubstanceCompound><BagVolume value="500.0" unit="mL"/><Rate value="100.0" unit="mL/min"/></Action>
+    <Action xsi:type="AdvanceTimeData"><Time value="120" unit="s"/></Action>
+    <Action xsi:type="SubstanceCompoundInfusionData"><SubstanceCompound>Saline</SubstanceCompound><BagVolume value="500.0" unit="mL"/><Rate value="200.0" unit="mL/min"/></Action>
+    <Action xsi:type="AdvanceTimeData"><Time value="300" unit="s"/></Action>
+    <Action xsi:type="SubstanceCompoundInfusionData"><SubstanceCompound>Blood_ONegative</SubstanceCompound><BagVolume value="500.0" unit="mL"/><Rate value="50.0" unit="mL/min"/></Action>
+    <Action xsi:type="AdvanceTimeData"><Time value="720" unit="s"/></Action>
+  </Actions>
+</Scenario>

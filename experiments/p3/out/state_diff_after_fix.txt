@@ -1,0 +1,11 @@
+== rest: 28249 values; 27 change across load+save
+   /BioGearsState/System[BioGearsNervousSystemData]/AttentionLapses | 3 -> 0
+   /BioGearsState/System[BioGearsNervousSystemData]/BiologicalDebt | 0.183077788604488 -> 0
+== hemorrhage: 28252 values; 26 change across load+save
+   /BioGearsState/System[BioGearsNervousSystemData]/AttentionLapses | 3 -> 0
+   /BioGearsState/System[BioGearsNervousSystemData]/BiologicalDebt | 0.183077788604488 -> 0
+2026-11-02 18:33 <INFO> [1m0s] [Action] 60(s), Patient Action : Compound Infusion
+	Substance Compound: Saline 
+== infusion: 28257 values; 26 change across load+save
+   /BioGearsState/System[BioGearsNervousSystemData]/AttentionLapses | 3 -> 5.50121314266901e-315
+   /BioGearsState/System[BioGearsNervousSystemData]/BiologicalDebt | 0.183077788604488 -> 0

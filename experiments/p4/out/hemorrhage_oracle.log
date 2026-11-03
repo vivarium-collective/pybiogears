@@ -1,0 +1,30 @@
+2026-11-02 18:44 <WARNING>  [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:44 <WARNING>  [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:44 <INFO>  [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 18:44 <INFO>  [0s] Executing Scenario 
+2026-11-02 18:44 <INFO>  [1m0s] Current Time is 60s, it took 9.669s to simulate the past 60s 
+2026-11-02 18:44 <INFO>  [1m0s] [Action] 60.02(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  100(mL/min)
+	Compartment: RightLeg
+	Injury Code: 24000 
+2026-11-02 18:44 <INFO>  [1m59s] Current Time is 120s, it took 9.527s to simulate the past 60s 
+2026-11-02 18:44 <INFO>  [3m0s] Current Time is 180s, it took 9.65s to simulate the past 60s 
+2026-11-02 18:44 <INFO>  [3m0s] [Action] 180.04(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  250(mL/min)
+	Compartment: RightLeg
+	Injury Code: 54000 
+2026-11-02 18:44 <INFO>  [4m0s] Current Time is 240s, it took 9.493s to simulate the past 60s 
+2026-11-02 18:45 <INFO>  [5m0s] Current Time is 300s, it took 9.406s to simulate the past 60s 
+2026-11-02 18:45 <INFO>  [5m0s] [Action] 300.06(s), Patient Action : Stop Hemorrhage
+	Compartment: RightLeg 
+2026-11-02 18:45 <INFO>  [5m59s] Current Time is 360s, it took 9.452s to simulate the past 60s 
+2026-11-02 18:45 <INFO>  [6m59s] Current Time is 420s, it took 9.254s to simulate the past 60s 
+2026-11-02 18:45 <INFO>  [7m59s] Current Time is 480s, it took 9.433s to simulate the past 60s 
+2026-11-02 18:45 <INFO>  [8m59s] Current Time is 540s, it took 9.364s to simulate the past 60s 
+2026-11-02 18:45 <INFO>  [9m59s] Current Time is 600s, it took 9.234s to simulate the past 60s 
+2026-11-02 18:45 <INFO>  [10m59s] Current Time is 660s, it took 9.234s to simulate the past 60s 
+2026-11-02 18:46 <INFO>  [11m59s] Current Time is 720s, it took 9.358s to simulate the past 60s 
+2026-11-02 18:46 <INFO>  [12m59s] Current Time is 780s, it took 9.485s to simulate the past 60s 
+2026-11-02 18:46 <INFO>  [13m59s] Current Time is 840s, it took 9.305s to simulate the past 60s 
+2026-11-02 18:46 <INFO>  [14m59s] Current Time is 900s, it took 9.2s to simulate the past 60s 
+2026-11-02 18:46 <INFO>  [15m0s] It took 141.081s to run this simulation 

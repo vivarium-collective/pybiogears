@@ -109,6 +109,13 @@ class BioGearsEngine:
         if not ok:
             raise BioGearsError(f"AdvanceModelTime failed: {self._last_errors()}")
 
+    def advance_steps(self, n: int) -> None:
+        """Advance exactly n engine time steps (see advance_steps in the thunk)."""
+        ok = self._thunk.advance_steps(int(n))
+        self._drain()
+        if not ok:
+            raise BioGearsError(f"AdvanceModelTime failed: {self._last_errors()}")
+
     def process_actions(self, actions: str | Iterable[str]) -> None:
         xml = actions if isinstance(actions, str) else "\n".join(actions)
         ok = self._thunk.process_actions(xml)

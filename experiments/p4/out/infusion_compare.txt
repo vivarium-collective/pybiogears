@@ -1,0 +1,9 @@
+rows compared: 1200; max |t_binding - t_oracle| = 8.01e-10 s
+HR                 max rel diff 8.13e-15 (at t = 1148.00 s)
+MAP                max rel diff 5.19e-15 (at t = 3.00 s)
+BloodVolume        max rel diff 1.64e-16 (at t = 9.00 s)
+CVP                max rel diff 1.24e-13 (at t = 34.00 s)
+CardiacOutput      max rel diff 8.76e-14 (at t = 89.00 s)
+HemoglobinContent  max rel diff 5.38e-16 (at t = 178.00 s)
+VenaCavaVolume     max rel diff 4.26e-16 (at t = 20.00 s)
+errors logged: []

@@ -65,6 +65,7 @@ PYBIND11_MODULE(_pybiogears, m)
            return py::array_t<double>(v.size(), v.data());
          })
     .def("advance", &BioGearsThunk::advance, py::arg("seconds"), py::call_guard<py::gil_scoped_release>())
+    .def("advance_steps", &BioGearsThunk::advance_steps, py::arg("n"), py::call_guard<py::gil_scoped_release>())
     .def_property_readonly("sim_time_s", &BioGearsThunk::sim_time_s)
     .def_property_readonly("time_step_s", &BioGearsThunk::time_step_s)
     .def_property_readonly("working_dir", &BioGearsThunk::working_dir)

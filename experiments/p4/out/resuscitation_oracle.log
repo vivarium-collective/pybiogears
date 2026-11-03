@@ -1,0 +1,40 @@
+2026-11-02 18:48 <WARNING>  [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:48 <WARNING>  [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:48 <INFO>  [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 18:48 <INFO>  [0s] Executing Scenario 
+2026-11-02 18:49 <INFO>  [1m0s] Current Time is 60s, it took 9.214s to simulate the past 60s 
+2026-11-02 18:49 <INFO>  [1m0s] [Action] 60.02(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  200(mL/min)
+	Compartment: Aorta
+	Injury Code: 42640 
+2026-11-02 18:49 <INFO>  [1m59s] Current Time is 120s, it took 9.191s to simulate the past 60s 
+2026-11-02 18:49 <INFO>  [3m0s] Current Time is 180s, it took 9.729s to simulate the past 60s 
+2026-11-02 18:49 <INFO>  [4m0s] Current Time is 240s, it took 9.388s to simulate the past 60s 
+2026-11-02 18:49 <INFO>  [5m0s] Current Time is 300s, it took 9.243s to simulate the past 60s 
+2026-11-02 18:49 <INFO>  [5m59s] Current Time is 360s, it took 9.039s to simulate the past 60s 
+2026-11-02 18:49 <INFO>  [6m0s] [Action] 360.04(s), Patient Action : Stop Hemorrhage
+	Compartment: Aorta 
+2026-11-02 18:49 <INFO>  [6m0s] [Action] 360.04(s), Patient Action : Compound Infusion
+	Rate: 200(mL/min)
+	Bag Volume: 1000(mL)
+	Substance Compound: Saline 
+2026-11-02 18:49 <INFO>  [6m6s] [Event] 366.14(s),  Patient has entered state : RespiratoryAlkalosis 
+2026-11-02 18:49 <INFO>  [6m12s] [Event] 372.76(s),  The patient is in a state of metabolic alkalosis 
+2026-11-02 18:50 <INFO>  [6m59s] Current Time is 420s, it took 9.47s to simulate the past 60s 
+2026-11-02 18:50 <INFO>  [7m59s] Current Time is 480s, it took 9.443s to simulate the past 60s 
+2026-11-02 18:50 <INFO>  [8m59s] Current Time is 540s, it took 9.492s to simulate the past 60s 
+2026-11-02 18:50 <INFO>  [9m59s] Current Time is 600s, it took 9.839s to simulate the past 60s 
+2026-11-02 18:50 <INFO>  [10m59s] Current Time is 660s, it took 9.883s to simulate the past 60s 
+2026-11-02 18:50 <INFO>  [11m59s] Current Time is 720s, it took 9.294s to simulate the past 60s 
+2026-11-02 18:51 <INFO>  [12m59s] Current Time is 780s, it took 9.165s to simulate the past 60s 
+2026-11-02 18:51 <INFO>  [13m59s] Current Time is 840s, it took 9.121s to simulate the past 60s 
+2026-11-02 18:51 <INFO>  [14m59s] Current Time is 900s, it took 9.149s to simulate the past 60s 
+2026-11-02 18:51 <INFO>  [15m59s] Current Time is 960s, it took 8.915s to simulate the past 60s 
+2026-11-02 18:51 <INFO>  [16m59s] Current Time is 1020s, it took 9.206s to simulate the past 60s 
+2026-11-02 18:51 <INFO>  [17m59s] Current Time is 1080s, it took 9.204s to simulate the past 60s 
+2026-11-02 18:51 <INFO>  [18m59s] Current Time is 1140s, it took 9.403s to simulate the past 60s 
+2026-11-02 18:52 <INFO>  [19m54s] [Event] 1194.92(s),  The patient is shivering 
+2026-11-02 18:52 <INFO>  [19m59s] Stomach is out of Sodium 
+2026-11-02 18:52 <INFO>  [19m59s] Current Time is 1200s, it took 9.322s to simulate the past 60s 
+2026-11-02 18:52 <INFO>  [20m59s] Current Time is 1260s, it took 9.751s to simulate the past 60s 
+2026-11-02 18:52 <INFO>  [21m0s] It took 196.48s to run this simulation 

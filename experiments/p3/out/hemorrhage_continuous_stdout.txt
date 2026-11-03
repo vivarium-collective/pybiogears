@@ -1,0 +1,7 @@
+2026-11-02 18:18 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:18 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:18 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 18:18 <INFO> [1m0s] [Action] 60(s), Patient Action : Hemorrhage
+	Initial Bleeding Rate:  150(mL/min)
+	Compartment: Aorta
+	Injury Code: 32640 

@@ -1,0 +1,29 @@
+2026-11-02 18:47 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:47 <WARNING> [0s] Multiple Renal Clearances specified, but not the same. RenalDynamics will override Systemic. 
+2026-11-02 18:47 <INFO> [0s] Biogears has sucesfully loaded StandardMale. 
+2026-11-02 18:47 <INFO> [1m0s] [Action] 60.02(s), Patient Action : Compound Infusion
+	Rate: 100(mL/min)
+	Bag Volume: 500(mL)
+	Substance Compound: Saline 
+2026-11-02 18:47 <INFO> [2m24s] [Event] 144.2(s),  The patient is in a state of metabolic alkalosis 
+2026-11-02 18:48 <INFO> [3m0s] [Action] 180.04(s), Patient Action : Compound Infusion
+	Rate: 200(mL/min)
+	Bag Volume: 500(mL)
+	Substance Compound: Saline 
+2026-11-02 18:48 <INFO> [3m1s] [Event] 181.36(s),  Patient has entered state : RespiratoryAlkalosis 
+2026-11-02 18:48 <INFO> [8m0s] [Action] 480.06(s), Patient Action : Compound Infusion
+	Rate: 50(mL/min)
+	Bag Volume: 500(mL)
+	Substance Compound: Blood_ONegative 
+2026-11-02 18:50 <INFO> [17m15s] [Event] 1035.54(s),  The patient is shivering 
+2026-11-02 18:50 <INFO> [19m11s] [Event] 1151.56(s),  Patient has exited state : RespiratoryAlkalosis 
+2026-11-02 18:50 <INFO> [19m59s] Stomach is out of Sodium 
+rows compared: 1200; max |t_binding - t_oracle| = 8.01e-10 s
+HR                 max rel diff 8.13e-15 (at t = 1148.00 s)
+MAP                max rel diff 5.19e-15 (at t = 3.00 s)
+BloodVolume        max rel diff 1.64e-16 (at t = 9.00 s)
+CVP                max rel diff 1.24e-13 (at t = 34.00 s)
+CardiacOutput      max rel diff 8.76e-14 (at t = 89.00 s)
+HemoglobinContent  max rel diff 5.38e-16 (at t = 178.00 s)
+VenaCavaVolume     max rel diff 4.26e-16 (at t = 20.00 s)
+errors logged: []

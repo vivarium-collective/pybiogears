@@ -1,0 +1,25 @@
+rest (action, if any, active from 60 s; state saved at 120 s; compared 120-600 s)
+  file_new   max rel diff 2.0e-12 (LymphReturn); at reload 1.0e-15; max |dt| 3.4e-13 s
+             per variable: HR 5e-13, MAP 3e-13, BloodVolume 3e-13, ExtravascularFluidVolume 2e-14, CVP 5e-13, LymphReturn 2e-12, CoreTemperature 1e-13
+  bytes_same max rel diff 2.0e-12 (LymphReturn); at reload 1.0e-15; max |dt| 3.4e-13 s
+             per variable: HR 5e-13, MAP 3e-13, BloodVolume 3e-13, ExtravascularFluidVolume 2e-14, CVP 5e-13, LymphReturn 2e-12, CoreTemperature 1e-13
+  bytes_new  max rel diff 2.0e-12 (LymphReturn); at reload 1.0e-15; max |dt| 3.4e-13 s
+             per variable: HR 5e-13, MAP 3e-13, BloodVolume 3e-13, ExtravascularFluidVolume 2e-14, CVP 5e-13, LymphReturn 2e-12, CoreTemperature 1e-13
+
+hemorrhage (action, if any, active from 60 s; state saved at 120 s; compared 120-600 s)
+  file_new   max rel diff 1.2e-12 (LymphReturn); at reload 1.5e-15; max |dt| 3.4e-13 s
+             per variable: HR 6e-13, MAP 4e-13, BloodVolume 4e-13, ExtravascularFluidVolume 4e-15, CVP 7e-13, LymphReturn 1e-12, CoreTemperature 1e-13
+  bytes_same max rel diff 1.2e-12 (LymphReturn); at reload 1.5e-15; max |dt| 3.4e-13 s
+             per variable: HR 6e-13, MAP 4e-13, BloodVolume 4e-13, ExtravascularFluidVolume 4e-15, CVP 7e-13, LymphReturn 1e-12, CoreTemperature 1e-13
+  bytes_new  max rel diff 1.2e-12 (LymphReturn); at reload 1.5e-15; max |dt| 3.4e-13 s
+             per variable: HR 6e-13, MAP 4e-13, BloodVolume 4e-13, ExtravascularFluidVolume 4e-15, CVP 7e-13, LymphReturn 1e-12, CoreTemperature 1e-13
+  action still acting after reload? blood volume at 600 s: hemorrhage 4490 mL (file_new 4490) vs rest 5549 mL
+
+infusion (action, if any, active from 60 s; state saved at 120 s; compared 120-600 s)
+  file_new   max rel diff 1.7e-09 (LymphReturn); at reload 1.1e-15; max |dt| 3.4e-13 s
+             per variable: HR 3e-10, MAP 2e-10, BloodVolume 9e-13, ExtravascularFluidVolume 1e-13, CVP 2e-10, LymphReturn 2e-09, CoreTemperature 9e-13
+  bytes_same max rel diff 1.7e-09 (LymphReturn); at reload 1.1e-15; max |dt| 3.4e-13 s
+             per variable: HR 3e-10, MAP 2e-10, BloodVolume 9e-13, ExtravascularFluidVolume 1e-13, CVP 2e-10, LymphReturn 2e-09, CoreTemperature 9e-13
+  bytes_new  max rel diff 1.7e-09 (LymphReturn); at reload 1.1e-15; max |dt| 3.4e-13 s
+             per variable: HR 3e-10, MAP 2e-10, BloodVolume 9e-13, ExtravascularFluidVolume 1e-13, CVP 2e-10, LymphReturn 2e-09, CoreTemperature 9e-13
+  action still acting after reload? blood volume at 600 s: infusion 6409 mL (file_new 6409) vs rest 5549 mL
