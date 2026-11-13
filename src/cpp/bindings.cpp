@@ -59,7 +59,12 @@ PYBIND11_MODULE(_pybiogears, m)
          })
     .def("total_blood_volume_lost_mL", &BioGearsThunk::total_blood_volume_lost_mL)
     .def("set_total_blood_volume_lost_mL", &BioGearsThunk::set_total_blood_volume_lost_mL)
-    .def("initialize_engine", &BioGearsThunk::initialize_engine, py::arg("patient_file"), py::arg("conditions_xml") = "", py::call_guard<py::gil_scoped_release>())
+    .def("initialize_engine", &BioGearsThunk::initialize_engine, py::arg("patient_file"), py::arg("conditions_xml") = "",
+         py::arg("config_xml") = "", py::call_guard<py::gil_scoped_release>())
+    .def_property_readonly("ready", &BioGearsThunk::ready)
+    .def("run_scenario", &BioGearsThunk::run_scenario, py::arg("scenario_file"), py::arg("results_file"),
+         py::call_guard<py::gil_scoped_release>())
+    .def("active_events", &BioGearsThunk::active_events)
     .def("set_data_requests", &BioGearsThunk::set_data_requests)
     .def("request_headings", &BioGearsThunk::request_headings)
     .def("pull_data", [](BioGearsThunk& t) {

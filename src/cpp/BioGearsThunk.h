@@ -71,7 +71,15 @@ public:
   bool save_state(const std::string& path);
   // BioGears has no save-to-string, so this goes through a temporary file.
   std::string save_state_to_string();
-  bool initialize_engine(const std::string& patient_file, const std::string& conditions_xml = "");
+  // config_xml: children of a <BioGearsConfiguration> (e.g. <TimeStep .../>), merged into
+  // the defaults as BioGears merges its BioGearsConfiguration.xml. Empty = defaults.
+  bool initialize_engine(const std::string& patient_file, const std::string& conditions_xml = "",
+                         const std::string& config_xml = "");
+  bool ready() const { return m_ready; }
+  // Runs a scenario file with BioGears' own BioGearsScenarioExec, writing its data
+  // requests to results_file (CSV). Stock behaviour: pybiogears' workarounds don't apply
+  // inside it. Afterwards the engine holds the scenario's final state.
+  bool run_scenario(const std::string& scenario_file, const std::string& results_file);
 
   // --- data requests -------------------------------------------------------
   // Replaces all requests. Returns, for each request, whether the engine could
@@ -100,6 +108,8 @@ public:
   // --- logging and events --------------------------------------------------
   std::vector<LogMessage> pull_log_messages();
   std::vector<EventChange> pull_events();
+  // Patient and anesthesia machine events active now.
+  std::vector<std::string> active_events() const;
   void set_log_to_console(bool on);
 
   static std::string version();
@@ -112,6 +122,7 @@ private:
   void after_load();
   std::function<double()> circuit_reader(const DataRequest& r);
   std::string temp_path(const std::string& stem, const std::string& ext) const;
+  void write_file(const std::string& path, const std::string& text) const;
 
   std::string m_working_dir;
   std::unique_ptr<ThunkLogForward> m_log_forward;

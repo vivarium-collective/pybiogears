@@ -40,6 +40,9 @@
 #include <biogears/engine/BioGearsPhysiologyEngine.h>
 #include <biogears/engine/Controller/BioGears.h>
 #include <biogears/engine/Controller/BioGearsCircuits.h>
+#include <biogears/engine/Controller/BioGearsConfiguration.h>
+#include <biogears/engine/Controller/Scenario/BioGearsScenarioExec.h>
+#include <biogears/cdm/system/equipment/Anesthesia/SEAnesthesiaMachine.h>
 #include <biogears/version.h>
 
 #include <cmath>
@@ -252,11 +255,40 @@ std::string BioGearsThunk::save_state_to_string()
   return ss.str();
 }
 
-bool BioGearsThunk::initialize_engine(const std::string& patient_file, const std::string& conditions_xml)
+void BioGearsThunk::write_file(const std::string& path, const std::string& text) const
+{
+  std::ofstream out(path);
+  out << text;
+}
+
+bool BioGearsThunk::initialize_engine(const std::string& patient_file, const std::string& conditions_xml,
+                                      const std::string& config_xml)
 {
   drop_requests();
+  // The configuration override is read the way BioGears reads BioGearsConfiguration.xml.
+  std::unique_ptr<BioGearsConfiguration> config;
+  if (!config_xml.empty()) {
+    const std::string tmp = temp_path("config", ".xml");
+    write_file(tmp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                    "<BioGearsConfiguration xmlns=\"uri:/mil/tatrc/physiology/datamodel\" "
+                    "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+                      + config_xml + "\n</BioGearsConfiguration>\n");
+    config = std::make_unique<BioGearsConfiguration>(m_engine->GetSubstanceManager());
+    bool ok = false;
+    try {
+      ok = config->Load(tmp);
+    } catch (const std::exception& e) {
+      m_log_forward->Error((std::string("pybiogears: configuration could not be read: ") + e.what()).c_str());
+    }
+    std::remove(tmp.c_str());
+    if (!ok) {
+      m_log_forward->Error("pybiogears: configuration could not be read");
+      m_ready = false;
+      return false;
+    }
+  }
   if (conditions_xml.empty()) {
-    m_ready = m_engine->InitializeEngine(patient_file);
+    m_ready = m_engine->InitializeEngine(patient_file, nullptr, config.get());
   } else {
     // Conditions are read the way bg-scenario reads them: as a scenario's
     // <InitialParameters>, whose SECondition objects BioGears then applies while
@@ -290,7 +322,7 @@ bool BioGearsThunk::initialize_engine(const std::string& patient_file, const std
     std::vector<const SECondition*> conditions;
     for (SECondition* c : scenario.GetInitialParameters().GetConditions())
       conditions.push_back(c);
-    m_ready = m_engine->InitializeEngine(patient_file, &conditions);
+    m_ready = m_engine->InitializeEngine(patient_file, &conditions, config.get());
   }
   if (m_ready)
     after_load();
@@ -679,6 +711,44 @@ bool BioGearsThunk::set_total_blood_volume_lost_mL(double value)
 // --- logging and events ----------------------------------------------------
 std::vector<LogMessage> BioGearsThunk::pull_log_messages() { return m_log_forward->drain(); }
 std::vector<EventChange> BioGearsThunk::pull_events() { return m_event_handler->drain(); }
+
+std::vector<std::string> BioGearsThunk::active_events() const
+{
+  std::vector<std::string> out;
+  if (!m_ready)
+    return out;
+  const SEPatient& patient = m_engine->GetPatient();
+  for (int i = static_cast<int>(SEPatientEventType::_begin); i < static_cast<int>(SEPatientEventType::_end); ++i)
+    if (patient.IsEventActive(static_cast<SEPatientEventType>(i)))
+      out.push_back(ToString(static_cast<SEPatientEventType>(i)));
+  if (auto* bg = dynamic_cast<BioGears*>(m_engine.get()))
+    for (SEAnesthesiaMachineEvent e : { SEAnesthesiaMachineEvent::OxygenBottle1Exhausted,
+                                        SEAnesthesiaMachineEvent::OxygenBottle2Exhausted,
+                                        SEAnesthesiaMachineEvent::ReliefValveActive })
+      if (bg->GetAnesthesiaMachine().IsEventActive(e))
+        out.push_back(ToString(e));
+  return out;
+}
+
+bool BioGearsThunk::run_scenario(const std::string& scenario_file, const std::string& results_file)
+{
+  drop_requests();
+  m_engine->SetAutoTrackFlag(true); // the scenario's own requests are written by tracking
+  BioGearsScenarioExec exec(*m_engine);
+  bool ok = false;
+  try {
+    ok = exec.Execute(scenario_file, results_file);
+  } catch (const std::exception& e) {
+    m_log_forward->Error((std::string("pybiogears: scenario failed: ") + e.what()).c_str());
+  }
+  m_engine->GetEngineTrack()->ResetFile(); // close the results file
+  m_engine->SetAutoTrackFlag(false);
+  m_engine->SetEventHandler(m_event_handler.get());
+  m_ready = ok || m_engine->GetSimulationTime(TimeUnit::s) > 0;
+  m_engine->GetEngineTrack()->GetDataRequestManager().Invalidate();
+  connect_requests();
+  return ok;
+}
 // Logger::LogToConsole only stores a flag that BioGears 8.2.0 never reads; the
 // console stream is filtered by level alone, and there is no public way to
 // remove it. Off = console level eFatal (the lowest), so only Fatal messages
