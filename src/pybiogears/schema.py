@@ -1,9 +1,8 @@
 """BioGears actions and conditions as Python calls, read from BioGears' own XML schema.
 
-Pulse's Python API has a class per action (``SEHemorrhage``, ...). BioGears' data model
-is its XML schema (``<runtime>/xsd``), and its scenario parser is the public way to
-create actions (``BioGearsThunk::process_actions``), so pybiogears builds the action
-XML from the schema instead: every action and condition type BioGears 8.2.0 defines is
+BioGears' data model is its XML schema (``<runtime>/xsd``), and its scenario parser is
+the public way to create actions (``BioGearsThunk::process_actions``), so pybiogears
+builds the action XML from the schema: every action and condition type BioGears 8.2.0 defines is
 available, with its fields checked before BioGears sees them.
 
     >>> from pybiogears import schema

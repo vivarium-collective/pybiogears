@@ -1,4 +1,4 @@
-"""Several BioGears engines advanced in parallel (Pulse's ``PulseEnginePool``).
+"""Several BioGears engines advanced in parallel.
 
 The engine releases Python's GIL while it loads, initializes, processes actions and
 advances, and each :class:`BioGearsEngine` owns its own BioGears instance, so threads

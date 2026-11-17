@@ -184,7 +184,7 @@ class BioGearsEngine:
         self.log.clear()
         self.events.clear()
 
-    # Pickling (Pulse's PulseEngine pickles too): the working directory, the requests and
+    # Pickling: the working directory, the requests and
     # the current state, which is reloaded on unpickling.
     def __getstate__(self):
         return {"working_dir": self.working_dir, "log_file": self._log_file, "log_limit": self._log_limit,
@@ -344,7 +344,7 @@ class BioGearsEngine:
 
     @property
     def active_events(self) -> list[str]:
-        """Patient and anesthesia machine events active now (Pulse's ``pull_active_events``),
+        """Patient and anesthesia machine events active now,
         e.g. ``["Tachycardia", "SevereSepsis"]``."""
         return list(self._thunk.active_events())
 

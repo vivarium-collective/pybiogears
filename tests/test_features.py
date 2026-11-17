@@ -1,4 +1,4 @@
-"""The Pulse-parity features: schema-built actions and conditions, event and log callbacks,
+"""Engine features: schema-built actions and conditions, event and log callbacks,
 active events, the patient, pickling, clear, configuration overrides, scenario files and
 the engine pool. Needs $BIOGEARS_RUNTIME.
 

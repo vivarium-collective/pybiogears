@@ -1,6 +1,5 @@
-// pybiogears: a thin C++ "thunk" over the BioGears engine, in the spirit of
-// Pulse's PhysiologyEngineThunk. Everything crossing to Python is a plain type
-// (strings, doubles, vectors of simple structs). Only BioGears' *installed*
+// pybiogears: a thin C++ "thunk" over the BioGears engine. Everything crossing to
+// Python is a plain type (strings, doubles, vectors of simple structs). Only BioGears' *installed*
 // public headers are used (probe question for decision D2).
 //
 // Licensed under the Apache License, Version 2.0.

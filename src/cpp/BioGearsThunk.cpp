@@ -352,8 +352,8 @@ void BioGearsThunk::connect_requests()
 
   for (const DataRequest& r : m_requests) {
     SEDataRequest* dr = nullptr;
-    // Substance lookups use GetSubstance, which never creates one
-    // (a Pulse lesson: name lookups that create substances).
+    // Substance lookups use GetSubstance, which never creates one (a lookup that
+    // creates a substance would add it to the patient).
     SESubstance* sub = r.substance.empty() ? nullptr : subs.GetSubstance(r.substance);
     bool bad_substance = !r.substance.empty() && sub == nullptr;
 
