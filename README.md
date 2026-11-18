@@ -2,7 +2,7 @@
 
 A Python binding for the [BioGears](https://github.com/BioGearsEngine/core) physiology engine, pinned to **BioGears 8.2.0**. It is the engine layer under `viva-biogears`. (BioGears' own source has an experimental, off-by-default SWIG Python option, `Biogears_SWIG_PYTHON_BINDINGS`, that wraps only its `Logger`.)
 
-Status: **probe stage** (plan section 4). The API below may change.
+Status: **early stage**. The API below may change.
 
 ## Layers
 

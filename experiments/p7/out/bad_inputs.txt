@@ -21,13 +21,13 @@
    Aorta Glucose concentration (already active)  bit-identical=True  max rel diff after 60 s 0.0e+00; connected=True
 
 3. Bad actions (process_actions): raised?, then what was logged
-   malformed XML                        raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : /home/claude/bg-install2/share/biogears/runtim
-   unknown action type                  raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : /home/claude/bg-install2/share/biogears/runtim
+   malformed XML                        raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : <runtime>
+   unknown action type                  raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : <runtime>
    unknown compound                     raised BioGearsError         advance ok, HR 72.4    | pybiogears: actions could not be read: PatientActions:Factory - Unknown substanc
    hemorrhage, unknown compartment      raised BioGearsError         advance ok, HR 72.4    | pybiogears: hemorrhage refused, compartment has no bleed path: Nowhere
    hemorrhage, negative rate            accepted                     advance ok, HR 72.4    | 
    AdvanceTime inside process_actions   raised BioGearsError         advance ok, HR 72.4    | Unsupported Action
-   empty string                         raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : /home/claude/bg-install2/share/biogears/runtim
+   empty string                         raised BioGearsError         advance ok, HR 72.4    | Error reading data from buffer  ; Scenario file could not be read : <runtime>
 
 4. Hemorrhage above cardiac output (BioGears logs Fatal and returns from the bleed calculation)
    advance(5) returned normally; BV 5532.4 mL; logged: Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the cardiac output; Error: Cannot set a bleed rate higher than the c

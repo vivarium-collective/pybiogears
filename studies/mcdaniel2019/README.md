@@ -41,7 +41,7 @@ The paper doesn't define its tachypnea threshold; 22/min is the qSOFA value.
 ## Running (on the Mac: about 8 h of wall time per 48 h run on a 2-core cloud VM, so use the Mac)
 
 ```sh
-cd ~/projects/biogears/pybiogears
+cd pybiogears                                                    # your clone
 source .venv/bin/activate
 CMAKE_PREFIX_PATH=~/biogears-8.2.0-install pip install .        # rebuild: pybiogears changed since the Mac install
 export BIOGEARS_RUNTIME=~/biogears-8.2.0-install/share/biogears/runtime
