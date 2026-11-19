@@ -12,10 +12,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Biogears REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
+# src/cpp/biogears_data: BioGears' own CSV-to-XML generators (bg-cli's
+# projects/cli/src/data, copied unmodified; see its README), behind generate_data.cpp.
+file(GLOB BIOGEARS_DATA_SOURCES CONFIGURE_DEPENDS src/cpp/biogears_data/*.cpp)
 pybind11_add_module(_pybiogears
   src/cpp/BioGearsThunk.cpp
+  src/cpp/generate_data.cpp
+  ${BIOGEARS_DATA_SOURCES}
   src/cpp/bindings.cpp)
-target_link_libraries(_pybiogears PRIVATE Biogears::libbiogears)
+target_link_libraries(_pybiogears PRIVATE Biogears::libbiogears Biogears::libbiogears_cdm
+                      Biogears::libbiogears_common)
 
 # BioGears 8.2.0's install omits the XSD-generated headers (biogears/schema/...)
 # that its public headers include (probe P1). Until that is fixed upstream,

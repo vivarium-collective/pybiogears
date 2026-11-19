@@ -4,19 +4,24 @@ from ._pybiogears import BioGearsThunk, DataRequest, EventChange, LogMessage
 from .engine import BioGearsEngine, BioGearsError, IrreversibleStateError
 from .pool import EnginePool
 from .schema import Raw, SchemaError, action, condition, configuration
-from . import actions, schema
+from .data import DataGenerationError, GeneratedData, generate_data
+from . import actions, data, schema
 
 __all__ = [
     "BioGearsEngine",
     "BioGearsError",
     "BioGearsThunk",
+    "DataGenerationError",
     "DataRequest",
     "EnginePool",
+    "GeneratedData",
     "Raw",
     "SchemaError",
     "action",
     "condition",
     "configuration",
+    "data",
+    "generate_data",
     "schema",
     "EventChange",
     "IrreversibleStateError",

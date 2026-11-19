@@ -87,6 +87,28 @@ A scalar is a number or `(value, unit)` (the unit is required where the schema r
 - `patient()` returns the current patient (`Name`, `Sex`, `Age`: `(44.0, "yr")`, ...); `active_events` the events active now; `has_state` whether a state is loaded; `clear()` starts over with a new engine.
 - An engine pickles (its working directory, requests and state) and continues the run after unpickling.
 
+### Patients and substances from BioGears' spreadsheet templates
+
+BioGears' data files (patients, substances, compounds, environments, meals) can be
+written from its spreadsheet templates, one column per item, the conversion behind
+`bg-cli GENERATE data`. `pb.generate_data` runs the same converters (BioGears' own
+source, compiled in unmodified: `src/cpp/biogears_data`) on your CSV files, into a folder
+you choose:
+
+```python
+out = pb.generate_data("my_templates/", "my_data/")   # Patients.csv, Substances.csv, ... in my_templates/
+out.files["patients"]                                  # [Path("my_data/patients/Avery.xml"), ...]
+eng.initialize(str(out.files["patients"][0]))         # stabilize the new patient
+```
+
+- `source` is a folder in the layout of `<runtime>/templates`, or a mapping `{"patients": "my_patients.csv", ...}`; `kinds` picks among `patients`, `substances`, `compounds`, `environments`, `nutrition` (default: every template found).
+- The output goes to `out_dir/patients`, `out_dir/substances` (substances and compounds), `out_dir/environments` and `out_dir/nutrition`. A substance becomes known to the engine when its file is in the runtime's `substances/` folder (BioGears loads every file there at start), so give the engine a runtime that holds it.
+- BioGears' converters never delete a file; existing output raises unless `replace=True`, which empties the output folders first, so an item removed from a CSV doesn't linger.
+- A value BioGears can't convert (`"forty yr"`) is silently left out of the file by its patient converter, which doesn't report it. `generate_data` compares every value of `Patients.csv` with the patient files and raises (`strict=True`) before writing anything. Rows BioGears doesn't read (`RightLungRatio`, a misspelt label) are listed in `out.messages`. Two items with one name raise.
+- `Stabilizations.csv` isn't supported: BioGears 8.2.0's converter for it crashes on its own template, as `bg-cli GENERATE data` does.
+- BioGears' physiological rules for a patient (age 18–105, blood volume within 15 % of the computed value, ...) are applied when the patient is built, by `initialize`.
+- BioGears' own templates reproduce 93 of its shipped files exactly; three substances (Etomidate, Fentanyl, Morphine) were edited after the template (EC50 in ug/L, the template's ug/mL), and the template doesn't describe 18 of the shipped patients or 2 substances (`tests/test_generate_data.py`).
+
 ### Several engines at once
 
 `pb.EnginePool(n, requests)` runs `n` engines on a thread pool: `load_state`, `initialize` and `advance` run them in parallel, `process_actions({index: xml})` addresses one, `pull()` returns a row per engine, `map(fn)` runs any function on all. pybiogears releases Python's GIL inside the engine, so the engines use separate cores (2 engines on 2 cores: 2× faster), and they give bit-identical results to the same engines run one after another (`tests/test_features.py`). BioGears parses XML through one shared serializer whose buffer reader takes no lock, so pybiogears serializes `load_state_bytes` across threads.
@@ -108,6 +130,7 @@ A scalar is a number or `(value, unit)` (the unit is required where the schema r
 | `LoadState` re-marshals existing requests as the base type | "Unsupported DataRequest Received" per request on every load | P3 |
 | compound components appended, not replaced, on load | an infusion active across a reload delivers double solutes | P3 |
 | hemorrhage on an unknown compartment accepted, then a null dereference | segfault of the Python process on the next step (now: refused with `BioGearsError`) | P7 |
+| `bg-cli GENERATE data`'s converters run in the current directory, print to the console and never delete files; the patient converter drops unconvertible values without reporting them; the stabilization converter crashes on its own template | `pb.generate_data` runs them in a child process and a scratch folder, replaces output folders only when asked, checks every patient value, refuses `stabilizations` | `tests/test_generate_data.py` |
 | unknown compound throws from the action factory | raw `RuntimeError`, temporary file left behind (now: `BioGearsError`, file removed) | P7 |
 | `LoadState` rebuilds the patient without the event handler | no events after a load (now: re-attached) | P7 |
 | irreversible state: `AdvanceModelTime` returns false silently | unexplained failure (now: `IrreversibleStateError`) | P7 |
