@@ -248,14 +248,13 @@ def test_files_biogears_cannot_read(engine, tmp_path, fields):
     assert not check.ok and len(check.errors) == 1
 
 
-def test_file_layout_problems_are_errors(tmp_path):
-    good = patient_xml({**M, "Age": (30, "yr"), "Weight": (80, "kg")})
-    assert check_patient(good).ok
-    unknown = good.replace(b"ns0:Age", b"ns0:Tmp")
-    out_of_order = patient_xml({**M, "Weight": (80, "kg")}).replace(
-        b"</ns0:Patient>", b'<ns0:Age value="30" unit="yr" /></ns0:Patient>')
+def test_file_layout_problems_are_errors():
+    def doc(body):
+        return (f'<Patient xmlns="{NS}"><Name>P</Name><Sex>Male</Sex>{body}</Patient>').encode()
+    assert check_patient(doc('<Age value="30" unit="yr"/><Weight value="80" unit="kg"/>')).ok
+    out_of_order = doc('<Weight value="80" unit="kg"/><Age value="30" unit="yr"/>')
     assert [f.field for f in check_patient(out_of_order).errors] == ["Age"]
-    assert [f.field for f in check_patient(unknown).errors] == ["Tmp"]
+    assert [f.field for f in check_patient(doc('<Tmp value="1"/>')).errors] == ["Tmp"]
     assert check_patient(b"<Patient").errors[0].field == "file"
 
 
