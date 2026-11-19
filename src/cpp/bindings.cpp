@@ -1,5 +1,6 @@
 // pybind11 module `pybiogears._pybiogears`. Licensed under the Apache License, Version 2.0.
 #include "BioGearsThunk.h"
+#include "generate_data.h"
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -14,6 +15,15 @@ using pybiogears::LogMessage;
 PYBIND11_MODULE(_pybiogears, m)
 {
   m.doc() = "Low-level BioGears engine thunk. Use the pybiogears package, not this module.";
+
+  py::class_<pybiogears::GeneratedKind>(m, "GeneratedKind")
+    .def_readonly("kind", &pybiogears::GeneratedKind::kind)
+    .def_readonly("parsed", &pybiogears::GeneratedKind::parsed)
+    .def_readonly("log", &pybiogears::GeneratedKind::log);
+  m.def("generate_data", &pybiogears::generate_data, py::arg("workdir"), py::arg("kinds"),
+        py::call_guard<py::gil_scoped_release>(),
+        "Run BioGears' CSV-to-XML generators in workdir (changes the working directory and "
+        "std::cout while it runs; use pybiogears.generate_data).");
 
   py::class_<DataRequest>(m, "DataRequest")
     .def(py::init<>())
