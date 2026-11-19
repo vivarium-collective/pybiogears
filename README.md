@@ -10,7 +10,7 @@ Status: **early stage**. The API below may change.
 |---|---|---|
 | C++ thunk | `src/cpp/BioGearsThunk.{h,cpp}` | Wraps `biogears::PhysiologyEngine` with plain types: state load/save (file, bytes), data requests, advance, actions as scenario XML, log and event capture. Uses only BioGears' installed public headers. |
 | pybind11 module | `src/cpp/bindings.cpp` | `pybiogears._pybiogears` |
-| Python | `src/pybiogears/` | `BioGearsEngine`, `DataRequest`, `actions` (XML builders) |
+| Python | `src/pybiogears/` | `BioGearsEngine`, `DataRequest`, `actions` (XML builders), `generate_data` (BioGears' CSV templates to XML), `check_patient` (BioGears' patient rules) |
 
 How each piece maps to BioGears:
 
@@ -106,8 +106,40 @@ eng.initialize(str(out.files["patients"][0]))         # stabilize the new patien
 - BioGears' converters never delete a file; existing output raises unless `replace=True`, which empties the output folders first, so an item removed from a CSV doesn't linger.
 - A value BioGears can't convert (`"forty yr"`) is silently left out of the file by its patient converter, which doesn't report it. `generate_data` compares every value of `Patients.csv` with the patient files and raises (`strict=True`) before writing anything. Rows BioGears doesn't read (`RightLungRatio`, a misspelt label) are listed in `out.messages`. Two items with one name raise.
 - `Stabilizations.csv` isn't supported: BioGears 8.2.0's converter for it crashes on its own template, as `bg-cli GENERATE data` does.
-- BioGears' physiological rules for a patient (age 18–105, blood volume within 15 % of the computed value, ...) are applied when the patient is built, by `initialize`.
+- BioGears' physiological rules for a patient (age 18–105, blood volume within 15 % of the computed value, ...) are applied when the patient is built, by `initialize`; `pb.check_patients(out)` reports them beforehand (next section).
 - BioGears' own templates reproduce 93 of its shipped files exactly; three substances (Etomidate, Fentanyl, Morphine) were edited after the template (EC50 in ug/L, the template's ug/mL), and the template doesn't describe 18 of the shipped patients or 2 substances (`tests/test_generate_data.py`).
+
+### What BioGears does with a patient
+
+When BioGears builds a patient (`BioGears::SetupPatient`, the first step of
+`initialize`) it refuses some values, warns about others, replaces some, and fills in
+whatever is missing. Several of these changes are easy to miss: a weight above BMI 30 is
+lowered to BMI 30, a heart rate above 109 /min becomes 109 /min with only an Info
+message, a given respiratory driver amplitude or total ventilation is replaced without a
+message. `pb.check_patient` reports all of it from the patient alone, without a runtime:
+
+```python
+check = pb.check_patient("my_data/patients/Avery.xml")   # or XML bytes, or {"Sex": "Female", "Age": (30, "yr"), ...}
+check.ok                     # False if BioGears would refuse it (initialize would fail)
+check.errors, check.adjusted, check.warnings, check.defaults   # Finding(level, field, message, given, used, logged)
+check.values["Weight"]       # what BioGears sets the patient up with (units: pb.patients.UNITS)
+print(check.report())
+check.raise_for_errors()     # PatientError listing what BioGears refuses
+pb.check_patients(out)       # a GeneratedData, a folder of patient files, or a list of files
+```
+
+```
+Patient Adjusted (Adjusted.xml): BioGears accepts it
+  adjusted Weight: BMI 34.9 is above 30 (obesity must be modelled with a condition); BioGears lowers the weight to BMI 30: 81.7 kg
+  adjusted HeartRateBaseline: 120 /min is above the 109 /min BioGears can stabilize; it uses 109 /min (logged only at Info level)
+  warning  Weight: BMI 30.0 is overweight (above 25); no guarantee of model validity
+  (18 values not given; BioGears fills them in: PainSusceptibility, Hyperhidrosis, SleepAmount, ...)
+```
+
+- The rules are BioGears 8.2.0's, transcribed from `SetupPatient` in its order and with its constants, units converted with BioGears' own factors. Files BioGears can't read (elements out of the schema's order, a unit the value doesn't accept, a sex other than Male or Female) are errors too.
+- Stabilization then replaces the heart rate, arterial pressures, respiration rate, tidal volume, functional residual capacity and blood volume baselines with the values the engine settles at. `check.after_stabilization(engine_or_state)` lists how far each moved (`Shift(field, unit, set_up, stabilized)`); for the patient above, MAP 87.0 → 95.6 mmHg (BioGears sets it up as SBP/3 + 2·DBP/3), respiration rate 14 → 13.3 /min, heart rate 109 → 109.
+- Oracle (`tests/test_patients.py`): BioGears' own log. For each patient, a value BioGears always refuses is added so that `initialize` stops right after `SetupPatient` (about a millisecond), and its messages, classified field by field, must equal the findings: one case per rule, every shipped patient, and 300 random patients across the thresholds. One stabilized patient checks the adjusted weight and heart rate.
+- BioGears 8.2.0 ships `patients/Male_44_Normal.xml` with a git merge conflict in it; it can't be read, by BioGears or here.
 
 ### Several engines at once
 
@@ -131,6 +163,8 @@ eng.initialize(str(out.files["patients"][0]))         # stabilize the new patien
 | compound components appended, not replaced, on load | an infusion active across a reload delivers double solutes | P3 |
 | hemorrhage on an unknown compartment accepted, then a null dereference | segfault of the Python process on the next step (now: refused with `BioGearsError`) | P7 |
 | `bg-cli GENERATE data`'s converters run in the current directory, print to the console and never delete files; the patient converter drops unconvertible values without reporting them; the stabilization converter crashes on its own template | `pb.generate_data` runs them in a child process and a scratch folder, replaces output folders only when asked, checks every patient value, refuses `stabilizations` | `tests/test_generate_data.py` |
+| `initialize` with a patient file BioGears can't find (it looks relative to the runtime, not Python's working directory) | segfault of the Python process (now: a relative path is taken from Python's working directory, a missing file raises `FileNotFoundError`) | `test_patients.py` |
+| `SetupPatient` changes values without saying so, or only at Info level (heart rate clamped to 50–109 /min, a given driver amplitude or total ventilation replaced) | a patient stabilizes somewhere other than where its file says (now: reported by `pb.check_patient`) | `test_patients.py` |
 | unknown compound throws from the action factory | raw `RuntimeError`, temporary file left behind (now: `BioGearsError`, file removed) | P7 |
 | `LoadState` rebuilds the patient without the event handler | no events after a load (now: re-attached) | P7 |
 | irreversible state: `AdvanceModelTime` returns false silently | unexplained failure (now: `IrreversibleStateError`) | P7 |

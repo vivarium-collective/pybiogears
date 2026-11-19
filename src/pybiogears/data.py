@@ -32,7 +32,8 @@ What BioGears' converters do and don't do, and what this adds:
 
 The XML is not checked against BioGears' physiological rules (a patient's age or blood
 volume, ...): BioGears applies those when it builds the patient
-(:meth:`BioGearsEngine.initialize`).
+(:meth:`BioGearsEngine.initialize`), and :func:`pybiogears.check_patients` reports them
+beforehand.
 
 The converters change the process's working directory and console output while they
 run, so they run in a child process.
