@@ -264,14 +264,32 @@ class BioGearsEngine:
         DehydrationData, ...; see :func:`pybiogears.schema.condition`), as one string or
         several. ``configuration`` overrides engine settings (children of a
         BioGearsConfiguration; :func:`pybiogears.schema.configuration`), merged into the
-        defaults the way BioGears merges its BioGearsConfiguration.xml. Takes minutes."""
+        defaults the way BioGears merges its BioGearsConfiguration.xml. Takes minutes.
+
+        BioGears first sets the patient up, refusing, adjusting or filling in values
+        (:func:`pybiogears.check_patient` reports what it will do)."""
+        patient_file = self._find_patient(patient_file)
         xml = conditions if isinstance(conditions, str) else "\n".join(conditions)
         config = _complete_configuration(configuration, self.working_dir) if configuration else ""
-        ok = self._thunk.initialize_engine(str(patient_file), xml, config)
+        ok = self._thunk.initialize_engine(patient_file, xml, config)
         self._drain()
         if not ok:
             raise BioGearsError(f"InitializeEngine failed for {patient_file}: {self._last_errors()}")
         self._connected = list(self._thunk.set_data_requests(self._requests))
+
+    def _find_patient(self, patient_file) -> str:
+        """An existing file as an absolute path; otherwise a name BioGears finds in the
+        runtime (``StandardMale.xml``, ``patients/StandardMale.xml``). BioGears looks
+        relative to the runtime, not to Python's working directory, and 8.2.0 crashes
+        (segfault) on a patient file it can't find."""
+        path = Path(patient_file).expanduser()
+        if path.is_file():
+            return str(path.resolve())
+        runtime = Path(self.working_dir)
+        if not path.is_absolute() and any((base / path).is_file() for base in (runtime, runtime / "patients")):
+            return str(patient_file)
+        raise FileNotFoundError(f"no patient file {patient_file} (looked in {Path.cwd()}, {runtime} and "
+                                f"{runtime / 'patients'})")
 
     # -- requests ------------------------------------------------------------
     def set_requests(self, requests: Sequence[DataRequest]) -> list[bool]:

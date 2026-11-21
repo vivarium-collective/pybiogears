@@ -5,7 +5,8 @@ from .engine import BioGearsEngine, BioGearsError, IrreversibleStateError
 from .pool import EnginePool
 from .schema import Raw, SchemaError, action, condition, configuration
 from .data import DataGenerationError, GeneratedData, generate_data
-from . import actions, data, schema
+from .patients import Finding, PatientCheck, PatientError, Shift, check_patient, check_patients
+from . import actions, data, patients, schema
 
 __all__ = [
     "BioGearsEngine",
@@ -24,6 +25,13 @@ __all__ = [
     "generate_data",
     "schema",
     "EventChange",
+    "Finding",
+    "PatientCheck",
+    "PatientError",
+    "Shift",
+    "check_patient",
+    "check_patients",
+    "patients",
     "IrreversibleStateError",
     "LogMessage",
     "actions",
