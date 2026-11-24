@@ -1,0 +1,71 @@
+name: Build BioGears, build pybiogears, run the tests
+description: >
+  Installs stock BioGears at the pin in scripts/install_biogears.sh (cached per
+  pin + script), builds pybiogears against it and runs the full suite against the
+  real engine. A skipped test fails the run: a skip proves nothing about the engine.
+runs:
+  using: composite
+  steps:
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build g++ git xsdcxx libxerces-c-dev libeigen3-dev \
+          libboost-dev libboost-system-dev libboost-filesystem-dev libboost-date-time-dev \
+          libboost-program-options-dev
+
+    - name: Read the pin
+      id: pin
+      shell: bash
+      run: |
+        echo "tag=$(sed -n 's/^BIOGEARS_TAG=//p' scripts/install_biogears.sh)" >> "$GITHUB_OUTPUT"
+        echo "commit=$(sed -n 's/^BIOGEARS_COMMIT=//p' scripts/install_biogears.sh)" >> "$GITHUB_OUTPUT"
+        echo "prefix=$HOME/biogears-install" >> "$GITHUB_OUTPUT"
+
+    - name: Restore the BioGears install
+      id: cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.pin.outputs.prefix }}
+        key: biogears-${{ runner.os }}-${{ runner.arch }}-${{ steps.pin.outputs.commit }}-${{ hashFiles('scripts/install_biogears.sh') }}
+
+    - name: Build BioGears from source
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: scripts/install_biogears.sh --prefix "${{ steps.pin.outputs.prefix }}" --work "$RUNNER_TEMP/biogears-build"
+
+    # Only reached when the build succeeded.
+    - name: Save the BioGears install
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.pin.outputs.prefix }}
+        key: ${{ steps.cache.outputs.cache-primary-key }}
+
+    - name: Build pybiogears
+      shell: bash
+      run: |
+        uv venv --python 3.12 .venv
+        CMAKE_PREFIX_PATH="${{ steps.pin.outputs.prefix }}" uv pip install --python .venv -e ".[test]"
+
+    - name: Run the tests
+      shell: bash
+      run: |
+        prefix="${{ steps.pin.outputs.prefix }}"
+        export BIOGEARS_RUNTIME="$prefix/share/biogears/runtime"
+        export BIOGEARS_SCENARIO="$prefix/bin/bg-scenario.sh"
+        cd "$BIOGEARS_RUNTIME"
+        "$GITHUB_WORKSPACE/.venv/bin/python" -m pytest "$GITHUB_WORKSPACE/tests" -rA --color=yes \
+          --junitxml="$GITHUB_WORKSPACE/pytest-results.xml"
+
+    - name: Fail on skipped tests
+      shell: bash
+      run: |
+        .venv/bin/python - <<'PY'
+        import xml.etree.ElementTree as ET
+        cases = ET.parse("pytest-results.xml").getroot().iter("testcase")
+        skipped = [f"{c.get('classname')}::{c.get('name')}" for c in cases if c.find("skipped") is not None]
+        if skipped:
+            raise SystemExit("skipped tests:\n  " + "\n  ".join(skipped))
+        print("no skipped tests")
+        PY

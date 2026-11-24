@@ -1,0 +1,106 @@
+name: update-biogears
+
+# Watches BioGears' releases. On a release newer than the pin in
+# scripts/install_biogears.sh it bumps the pin, rebuilds BioGears, rebuilds the
+# pybiogears binding against it and runs the full suite. Green: opens a PR for
+# review (checks do not re-run on a PR opened with GITHUB_TOKEN, so this run is
+# the retest). Red: opens an issue with the run link; nothing is committed.
+#
+# The repository setting "Allow GitHub Actions to create and approve pull
+# requests" must be on.
+on:
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Bump to this BioGears tag instead of the latest release (to exercise the workflow)
+        type: string
+        default: ""
+
+concurrency:
+  group: update-biogears
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Find the target release
+        id: target
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERRIDE: ${{ inputs.tag }}
+        run: |
+          current=$(sed -n 's/^BIOGEARS_TAG=//p' scripts/install_biogears.sh)
+          tag="${OVERRIDE:-$(gh release view --repo BioGearsEngine/core --json tagName --jq .tagName)}"
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [ "$tag" = "$current" ]; then
+            echo "::notice::BioGears $current is the latest release; nothing to do"
+            echo "bump=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Annotated tags peel to the commit with ^{}; lightweight ones don't.
+          commit=$(git ls-remote https://github.com/BioGearsEngine/core.git "refs/tags/$tag^{}" | cut -f1)
+          [ -n "$commit" ] || commit=$(git ls-remote https://github.com/BioGearsEngine/core.git "refs/tags/$tag" | cut -f1)
+          [ -n "$commit" ] || { echo "::error::tag $tag not found in BioGearsEngine/core"; exit 1; }
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "bump=true" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if an update branch for this tag exists
+        id: dup
+        if: steps.target.outputs.bump == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="bump/biogears-${{ steps.target.outputs.tag }}"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "::notice::$branch already exists; nothing to do"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump the pin
+        if: steps.target.outputs.bump == 'true' && steps.dup.outputs.skip != 'true'
+        run: |
+          sed -i "s/^BIOGEARS_TAG=.*/BIOGEARS_TAG=${{ steps.target.outputs.tag }}/; s/^BIOGEARS_COMMIT=.*/BIOGEARS_COMMIT=${{ steps.target.outputs.commit }}/" scripts/install_biogears.sh
+          git diff --stat
+
+      - id: retest
+        if: steps.target.outputs.bump == 'true' && steps.dup.outputs.skip != 'true'
+        uses: ./.github/actions/build-and-test
+
+      - name: Open the PR
+        if: steps.retest.outcome == 'success'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: ${{ steps.dup.outputs.branch }}
+          commit-message: "Bump BioGears to ${{ steps.target.outputs.tag }}"
+          title: "Bump BioGears ${{ steps.target.outputs.current }} -> ${{ steps.target.outputs.tag }}"
+          body: |
+            BioGears released `${{ steps.target.outputs.tag }}` (commit `${{ steps.target.outputs.commit }}`).
+
+            This run rebuilt BioGears at the new pin, rebuilt pybiogears against it and passed the full suite with no skips:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Not updated by the bot, for review: version mentions in prose (`README.md`, `pyproject.toml` description) and the "install gaps" the script works around, which a new release may have fixed.
+
+      - name: Open an issue when the retest fails
+        if: always() && steps.retest.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="BioGears ${{ steps.target.outputs.tag }}: pybiogears rebuild or tests fail"
+          if [ -z "$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')" ]; then
+            gh issue create --title "$title" --body "The scheduled update to BioGears \`${{ steps.target.outputs.tag }}\` did not pass. Nothing was committed. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi

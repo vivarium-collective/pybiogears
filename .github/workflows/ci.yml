@@ -1,0 +1,31 @@
+name: ci
+
+# Full suite against a real BioGears build. BioGears has no prebuilt release for
+# this pin, so it is built from source once per pin and cached; later runs
+# restore the install. Caches are per branch: a PR reads its own and main's, so
+# a PR builds cold until main has a cache. Unused entries are evicted after 7
+# days, hence the weekly run.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+
+# Never cancel a main or scheduled run: a cancelled cold build saves no cache.
+concurrency:
+  group: ci-${{ github.ref }}-${{ github.event.schedule || 'run' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: ./.github/actions/build-and-test
