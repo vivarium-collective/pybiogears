@@ -4,6 +4,7 @@ Oracles here are physical (mass balance) or BioGears' own outputs, never the bin
 """
 import math
 import os
+import re
 from pathlib import Path
 
 import numpy as np
@@ -29,7 +30,10 @@ def eng():
 
 
 def test_version():
-    assert pb.biogears_version().startswith("8.2.0")
+    # The pin lives in one place: scripts/install_biogears.sh (the update workflow bumps it).
+    script = Path(__file__).resolve().parents[1] / "scripts" / "install_biogears.sh"
+    pinned = re.search(r"^BIOGEARS_TAG=(\S+)", script.read_text(), re.M).group(1)
+    assert pb.biogears_version().startswith(pinned)
 
 
 def test_hemorrhage_removes_blood(eng):
